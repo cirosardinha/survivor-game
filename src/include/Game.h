@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Player.h"
 #include "ResourceManager.h"
 
 typedef enum GameState {
@@ -13,6 +14,8 @@ typedef struct Game {
 	GameState currentState;
 	float delta;
 	ResourceManager* resourceManager;
+
+	Player player;
 } Game;
 
 Game* createGame(void);

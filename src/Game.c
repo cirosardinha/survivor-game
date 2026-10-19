@@ -31,6 +31,8 @@ Game* createGame(void) {
 	game->delta = 0.0f;
 	game->resourceManager = createResourceManager();
 	loadResources(game->resourceManager);
+
+	initPlayer(&game->player);
 	return game;
 }
 
@@ -70,11 +72,11 @@ static void drawMenu(Game* game) {
 }
 
 static void updateGameplay(Game* game) {
-	if (IsKeyPressed(KEY_ESCAPE)) changeGameState(game, STATE_GAMEOVER);
+	updatePlayer(&game->player, game->delta);
 }
 
 static void drawGameplay(Game* game) {
-	drawCenteredText("Jogando...");
+	drawPlayer(&game->player);
 }
 
 static void updateGameOver(Game* game) {
