@@ -37,6 +37,23 @@ void updatePlayer(Player* player, float delta) {
 	}
 	player->pos.x += player->vel.x * player->speed * delta;
 	player->pos.y += player->vel.y * player->speed * delta;
+
+	float worldWidth = WORLD_WIDTH * TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+	float playerWidth = player->texture.width / 4.0f;
+	float playerHeight = player->texture.width / 4.0f;
+
+	if (player->pos.x < 0) {
+		player->pos.x = 0;
+	} else if (player->pos.x > worldWidth - playerWidth) {
+		player->pos.x = worldWidth - playerWidth;
+	}
+
+	if (player->pos.y < 0) {
+		player->pos.y = 0;
+	} else if (player->pos.y > worldHeight - playerHeight) {
+		player->pos.y = worldHeight - playerHeight;
+	}
 }
 
 void drawPlayer(Player* const player) {
