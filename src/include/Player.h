@@ -26,8 +26,14 @@ typedef struct Player {
 
 	PlayerState state;
 	PlayerDirection direction;
+
+	Texture2D texture;
+
+	int frame;
+	float frameTimer;
+
 } Player;
 
-void initPlayer(Player* player);
+void initPlayer(Player* player, Texture2D);
 void updatePlayer(Player* player, float delta);
 void drawPlayer(Player* const player);

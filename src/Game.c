@@ -33,7 +33,8 @@ Game* createGame(void) {
 	game->resourceManager = createResourceManager();
 	loadResources(game->resourceManager);
 
-	initPlayer(&game->player);
+	initPlayer(&game->player, game->resourceManager->playerTexture);
+
 	return game;
 }
 
