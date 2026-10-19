@@ -2,6 +2,7 @@
 
 #include "Game.h"
 #include "Input.h"
+#include "Map.h"
 #include "config.h"
 #include "raylib.h"
 
@@ -33,6 +34,7 @@ Game* createGame(void) {
 	game->resourceManager = createResourceManager();
 	loadResources(game->resourceManager);
 
+	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
 
 	return game;
@@ -80,6 +82,7 @@ static void updateGameplay(Game* game) {
 }
 
 static void drawGameplay(Game* game) {
+	drawMap(game);
 	drawPlayer(&game->player);
 }
 

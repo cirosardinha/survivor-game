@@ -5,6 +5,7 @@
 // Ponto único de carregamento/descarregamento de texturas, sons e músicas.
 typedef struct ResourceManager {
 	Texture2D playerTexture;
+	Texture2D grassTexture;
 	// Sound jumpSound;
 	// Music backgroundMusic;
 	int loaded;
