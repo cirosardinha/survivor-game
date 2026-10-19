@@ -18,6 +18,8 @@ void initPlayer(Player* player) {
 }
 
 void updatePlayer(Player* player, float delta) {
+	player->pos.x += player->vel.x * player->speed * delta;
+	player->pos.y += player->vel.y * player->speed * delta;
 }
 
 void drawPlayer(Player* const player) {

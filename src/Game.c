@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "Game.h"
+#include "Input.h"
 #include "config.h"
 #include "raylib.h"
 
@@ -72,6 +73,8 @@ static void drawMenu(Game* game) {
 }
 
 static void updateGameplay(Game* game) {
+	handleInput(&game->player);
+
 	updatePlayer(&game->player, game->delta);
 }
 
