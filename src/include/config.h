@@ -7,5 +7,5 @@
 #define MAX_DELTA (1.0f / 30.0f)
 
 #define TILE_SIZE 32
-#define WORLD_WIDTH 10
-#define WORLD_HEIGHT 10
+#define WORLD_WIDTH 50
+#define WORLD_HEIGHT 50

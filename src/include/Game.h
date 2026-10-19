@@ -16,6 +16,7 @@ typedef struct Game {
 	ResourceManager* resourceManager;
 
 	Player player;
+	Camera2D camera;
 } Game;
 
 Game* createGame(void);

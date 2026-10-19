@@ -15,6 +15,8 @@ static void drawGameplay(Game* game);
 static void updateGameOver(Game* game);
 static void drawGameOver(Game* game);
 
+static void updateCamera(Game* game);
+
 typedef struct StateFunctions {
 	void (*update)(Game* game);
 	void (*draw)(Game* game);
@@ -36,6 +38,11 @@ Game* createGame(void) {
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
+
+	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
+	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
+	game->camera.rotation = 0.0f;
+	game->camera.zoom = 1.0f;
 
 	return game;
 }
@@ -79,11 +86,14 @@ static void updateGameplay(Game* game) {
 	handleInput(&game->player);
 
 	updatePlayer(&game->player, game->delta);
+	updateCamera(game);
 }
 
 static void drawGameplay(Game* game) {
+	BeginMode2D(game->camera);
 	drawMap(game);
 	drawPlayer(&game->player);
+	EndMode2D();
 }
 
 static void updateGameOver(Game* game) {
@@ -94,4 +104,38 @@ static void updateGameOver(Game* game) {
 
 static void drawGameOver(Game* game) {
 	drawCenteredText("Game Over - toque ou ENTER para voltar ao menu");
+}
+
+static void updateCamera(Game* game) {
+	float worldWidth = WORLD_WIDTH * TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+
+	float halfScreenWidth = (float) WINDOW_WIDTH / (2.0f * game->camera.zoom);
+	float halfScreenHeight = (float) WINDOW_HEIGHT / (2.0f * game->camera.zoom);
+
+	game->camera.target.x = game->player.pos.x + TILE_SIZE;
+	game->camera.target.y = game->player.pos.y + TILE_SIZE;
+
+	if (halfScreenWidth * 2 >= worldWidth) {
+		game->camera.target.x = worldWidth / 2.0f;
+	} else {
+		if (game->camera.target.x < halfScreenWidth) {
+			game->camera.target.x = halfScreenWidth;
+		}
+		if (game->camera.target.x > worldWidth - halfScreenWidth) {
+			game->camera.target.x = worldWidth - halfScreenWidth;
+		}
+	}
+
+	if (halfScreenHeight * 2.0f >= worldHeight) {
+		game->camera.target.y = worldHeight / 2.0f;
+	} else {
+		if (game->camera.target.y < halfScreenHeight) {
+			game->camera.target.y = halfScreenHeight;
+		}
+
+		if (game->camera.target.y > worldHeight - halfScreenHeight) {
+			game->camera.target.y = worldHeight - halfScreenHeight;
+		}
+	}
 }
