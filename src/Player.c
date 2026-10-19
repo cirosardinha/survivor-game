@@ -1,10 +1,14 @@
 #include "Player.h"
 #include "config.h"
 
+const float scale = 2.0f;
+const float playerWidth = TILE_SIZE * scale;
+const float playerHeight = TILE_SIZE * scale;
+
 void initPlayer(Player* player, Texture2D texture) {
 	player->pos = (Vector2){
-	    WORLD_WIDTH * TILE_SIZE / 2.0f,
-	    WORLD_HEIGHT * TILE_SIZE / 2.0f,
+	    (WORLD_WIDTH * TILE_SIZE - playerWidth) / 2.0f,
+	    (WORLD_HEIGHT * TILE_SIZE - playerHeight) / 2.0f,
 	};
 
 	player->vel = (Vector2){0, 0};
@@ -23,25 +27,22 @@ void initPlayer(Player* player, Texture2D texture) {
 
 void updatePlayer(Player* player, float delta) {
 	player->frameTimer += delta;
-	if (player->frameTimer >= 0.15f) {
-		player->frameTimer -= 0.15f;
-		player->frame++;
+	if (player->vel.x != 0.0f || player->vel.y != 0.0f) {
+		player->frameTimer += delta;
 
-		if (player->frame > 3) {
-			player->frame = 0;
+		if (player->frameTimer >= 0.15f) {
+			player->frameTimer -= 0.15f;
+			player->frame = (player->frame + 1) % 4;
 		}
-
-		if (player->vel.x == 0.0f && player->vel.y == 0.0f) {
-			player->frame = 0;
-		}
+	} else {
+		player->frame = 0;
+		player->frameTimer = 0.0f;
 	}
 	player->pos.x += player->vel.x * player->speed * delta;
 	player->pos.y += player->vel.y * player->speed * delta;
 
 	float worldWidth = WORLD_WIDTH * TILE_SIZE;
 	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
-	float playerWidth = player->texture.width / 4.0f;
-	float playerHeight = player->texture.width / 4.0f;
 
 	if (player->pos.x < 0) {
 		player->pos.x = 0;
@@ -60,8 +61,6 @@ void drawPlayer(Player* const player) {
 	float frameWidth = TILE_SIZE;
 	float frameHeight = TILE_SIZE;
 	int row = player->direction;
-
-	float scale = 2.0f;
 
 	Rectangle dest = {
 	    player->pos.x,
