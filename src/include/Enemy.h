@@ -16,7 +16,9 @@ typedef struct EnemyStats {
 	float speed;
 	float size;
 	float minDistance;
+
 	float attackRange;
+	int attackDamage;
 	float attackCooldown;
 } EnemyStats;
 
@@ -26,6 +28,7 @@ typedef struct Enemy {
 	Vector2 vel;
 
 	int health;
+	float attackTimer;
 
 	EnemyStats stats;
 	EnemyType type;

@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "config.h"
 #include "raylib.h"
+#include "ui.h"
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -91,6 +92,10 @@ static void updateGameplay(Game* game) {
 	updateEnemy(&game->enemy, &game->player, game->delta);
 	updatePlayer(&game->player, game->delta);
 	updateCamera(game);
+
+	if (game->player.health <= 0) {
+		changeGameState(game, STATE_GAMEOVER);
+	}
 }
 
 static void drawGameplay(Game* game) {
@@ -99,6 +104,8 @@ static void drawGameplay(Game* game) {
 	drawPlayer(&game->player);
 	drawEnemy(&game->enemy);
 	EndMode2D();
+
+	drawPlayerHealth(&game->player);
 }
 
 static void updateGameOver(Game* game) {

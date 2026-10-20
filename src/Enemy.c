@@ -1,9 +1,11 @@
 #include "Enemy.h"
+#include "config.h"
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
+static void attackPlayer(Enemy* enemy, Player* player, float delta);
 
 static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
     [ENEMY_TYPE_BAT] =
@@ -11,8 +13,9 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .maxHealth = 30,
             .speed = 260.0f,
             .size = 64.0f,
-            .minDistance = 72.0f,
+            .minDistance = 40.0f,
             .attackRange = 48.0f,
+            .attackDamage = 8,
             .attackCooldown = 0.8f,
         },
 
@@ -21,8 +24,9 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .maxHealth = 120,
             .speed = 80.0f,
             .size = 64.0f,
-            .minDistance = 68.0f,
+            .minDistance = 48.0f,
             .attackRange = 56.0f,
+            .attackDamage = 25,
             .attackCooldown = 1.5f,
         },
 
@@ -31,8 +35,9 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .maxHealth = 70,
             .speed = 130.0f,
             .size = 64.0f,
-            .minDistance = 64.0f,
+            .minDistance = 40.0f,
             .attackRange = 48.0f,
+            .attackDamage = 12,
             .attackCooldown = 1.2f,
         },
 };
@@ -45,6 +50,7 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 	enemy->vel = (Vector2){0.0f, 0.0f};
 
 	enemy->health = stats->maxHealth;
+	enemy->attackTimer = 0.0f;
 
 	enemy->stats = *stats;
 	enemy->type = type;
@@ -69,6 +75,7 @@ void updateEnemy(Enemy* enemy, Player* player, float delta) {
 	}
 
 	followPlayer(enemy, player, delta);
+	attackPlayer(enemy, player, delta);
 }
 
 void drawEnemy(Enemy* enemy) {
@@ -110,4 +117,28 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 
 	enemy->pos.x += enemy->vel.x * delta;
 	enemy->pos.y += enemy->vel.y * delta;
+}
+
+static void attackPlayer(Enemy* enemy, Player* player, float delta) {
+	Vector2 enemyCenter = {
+	    enemy->pos.x + enemy->stats.size / 2.0f,
+	    enemy->pos.y + enemy->stats.size / 2.0f};
+
+	Vector2 playerCenter = {
+	    player->pos.x + TILE_SIZE, player->pos.y + TILE_SIZE};
+
+	float distance = Vector2Distance(enemyCenter, playerCenter);
+
+	enemy->attackTimer += delta;
+
+	if (distance <= enemy->stats.attackRange &&
+	    enemy->attackTimer >= enemy->stats.attackCooldown) {
+		player->health -= enemy->stats.attackDamage;
+
+		if (player->health <= 0) {
+			player->health = 0;
+		};
+
+		enemy->attackTimer = 0.0f;
+	}
 }
