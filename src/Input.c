@@ -1,4 +1,5 @@
 #include "Input.h"
+#include "raymath.h"
 
 void handleInput(Player* player) {
 	player->vel = (Vector2){0.0f, 0.0f};
@@ -21,5 +22,9 @@ void handleInput(Player* player) {
 	if (IsKeyDown(KEY_S)) {
 		player->vel.y = 1.0f;
 		player->direction = PLAYER_DOWN;
+	}
+
+	if (Vector2LengthSqr(player->vel) > 0.0f) {
+		player->vel = Vector2Normalize(player->vel);
 	}
 }
