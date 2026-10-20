@@ -1,6 +1,9 @@
 #include "Player.h"
 #include "config.h"
 
+#define PLAYER_INVINCIBLE_TIME 1.0f
+#define PLAYER_BLINK_INTERVAL 0.1f
+
 const float scale = 2.0f;
 const float playerWidth = TILE_SIZE * scale;
 const float playerHeight = TILE_SIZE * scale;
@@ -23,9 +26,16 @@ void initPlayer(Player* player, Texture2D texture) {
 	player->texture = texture;
 	player->frame = 0;
 	player->frameTimer = 0.0f;
+	player->invincibleTimer = 0.0f;
 }
 
 void updatePlayer(Player* player, float delta) {
+	if (player->invincibleTimer > 0.0f) {
+		player->invincibleTimer -= delta;
+		if (player->invincibleTimer <= 0.0f) {
+			player->invincibleTimer = 0.0f;
+		}
+	}
 	player->frameTimer += delta;
 	if (player->vel.x != 0.0f || player->vel.y != 0.0f) {
 		player->frameTimer += delta;
@@ -77,6 +87,13 @@ void drawPlayer(Player* const player) {
 	};
 
 	Color tint = WHITE;
+
+	if (player->invincibleTimer > 0.0f) {
+		int phase = (int) (player->invincibleTimer / PLAYER_BLINK_INTERVAL);
+		if (phase % 2 == 0) {
+			tint = Fade(RED, 0.3f);
+		}
+	}
 
 	DrawTexturePro(
 	    player->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);

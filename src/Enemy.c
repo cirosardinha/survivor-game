@@ -3,6 +3,7 @@
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
+#define PLAYER_INVINCIBLE_TIME 1.0f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void attackPlayer(Enemy* enemy, Player* player, float delta);
@@ -123,6 +124,8 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 }
 
 static void attackPlayer(Enemy* enemy, Player* player, float delta) {
+	if (player->invincibleTimer > 0.0f) return;
+
 	Vector2 enemyCenter = {
 	    enemy->pos.x + enemy->stats.size / 2.0f,
 	    enemy->pos.y + enemy->stats.size / 2.0f,
@@ -138,6 +141,7 @@ static void attackPlayer(Enemy* enemy, Player* player, float delta) {
 	if (distance <= enemy->stats.attackRange &&
 	    enemy->attackTimer >= enemy->stats.attackCooldown) {
 		player->health -= enemy->stats.attackDamage;
+		player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
 
 		if (player->health <= 0) {
 			player->health = 0;

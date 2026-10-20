@@ -24,6 +24,8 @@ typedef struct Player {
 	int maxHealth;
 	float speed;
 
+	float invincibleTimer;
+
 	PlayerState state;
 	PlayerDirection direction;
 
