@@ -6,6 +6,7 @@
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void attackPlayer(Enemy* enemy, Player* player, float delta);
+static void drawEnemyHealth(const Enemy* enemy);
 
 static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
     [ENEMY_TYPE_BAT] =
@@ -98,6 +99,8 @@ void drawEnemy(Enemy* enemy) {
 
 	DrawTexturePro(
 	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+
+	drawEnemyHealth(enemy);
 }
 
 static void followPlayer(Enemy* enemy, Player* player, float delta) {
@@ -122,7 +125,8 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 static void attackPlayer(Enemy* enemy, Player* player, float delta) {
 	Vector2 enemyCenter = {
 	    enemy->pos.x + enemy->stats.size / 2.0f,
-	    enemy->pos.y + enemy->stats.size / 2.0f};
+	    enemy->pos.y + enemy->stats.size / 2.0f,
+	};
 
 	Vector2 playerCenter = {
 	    player->pos.x + TILE_SIZE, player->pos.y + TILE_SIZE};
@@ -141,4 +145,23 @@ static void attackPlayer(Enemy* enemy, Player* player, float delta) {
 
 		enemy->attackTimer = 0.0f;
 	}
+}
+
+static void drawEnemyHealth(const Enemy* enemy) {
+	float barWidth = enemy->stats.size * 0.8f;
+	float barHeight = 8.0f;
+
+	float healthPercent = (float) enemy->health / enemy->stats.maxHealth;
+
+	float x = enemy->pos.x + (enemy->stats.size - barWidth) / 2.0f;
+	float y = enemy->pos.y - barHeight - 4.0f;
+
+	DrawRectangle((int) x, (int) y, (int) barWidth, (int) barHeight, DARKGRAY);
+
+	DrawRectangle(
+	    (int) x, (int) y, (int) (barWidth * healthPercent), (int) barHeight,
+	    RED);
+
+	DrawRectangleLines(
+	    (int) x, (int) y, (int) barWidth, (int) barHeight, WHITE);
 }
