@@ -38,6 +38,9 @@ Game* createGame(void) {
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
+	initEnemy(
+	    &game->enemy, game->resourceManager->slimeTexture, game->player.pos,
+	    ENEMY_TYPE_SLIME);
 
 	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
 	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
@@ -85,6 +88,7 @@ static void drawMenu(Game* game) {
 static void updateGameplay(Game* game) {
 	handleInput(&game->player);
 
+	updateEnemy(&game->enemy, game->delta);
 	updatePlayer(&game->player, game->delta);
 	updateCamera(game);
 }
@@ -93,6 +97,7 @@ static void drawGameplay(Game* game) {
 	BeginMode2D(game->camera);
 	drawMap(game);
 	drawPlayer(&game->player);
+	drawEnemy(&game->enemy);
 	EndMode2D();
 }
 

@@ -15,7 +15,7 @@ void initPlayer(Player* player, Texture2D texture) {
 
 	player->health = 100;
 	player->maxHealth = 100;
-	player->speed = 250.0f;
+	player->speed = 200.0f;
 
 	player->state = PLAYER_WALKING;
 	player->direction = PLAYER_DOWN;

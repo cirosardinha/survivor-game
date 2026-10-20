@@ -12,6 +12,9 @@ ResourceManager* createResourceManager(void) {
 void loadResources(ResourceManager* rm) {
 	rm->playerTexture = LoadTexture("resources/images/player.png");
 	rm->grassTexture = LoadTexture("resources/images/grass.png");
+	rm->batTexture = LoadTexture("resources/images/bat.png");
+	rm->beetleTexture = LoadTexture("resources/images/beetle.png");
+	rm->slimeTexture = LoadTexture("resources/images/slime.png");
 	// rm->jumpSound = LoadSound("resources/sfx/jump.wav");
 	// rm->backgroundMusic = LoadMusicStream("resources/musics/theme.ogg");
 	rm->loaded = 1;
@@ -22,6 +25,9 @@ void unloadResources(ResourceManager* rm) {
 
 	UnloadTexture(rm->playerTexture);
 	UnloadTexture(rm->grassTexture);
+	UnloadTexture(rm->batTexture);
+	UnloadTexture(rm->beetleTexture);
+	UnloadTexture(rm->slimeTexture);
 	// UnloadSound(rm->jumpSound);
 	// UnloadMusicStream(rm->backgroundMusic);
 

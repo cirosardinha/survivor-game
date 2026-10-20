@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Enemy.h"
 #include "Player.h"
 #include "ResourceManager.h"
 
@@ -16,6 +17,7 @@ typedef struct Game {
 	ResourceManager* resourceManager;
 
 	Player player;
+	Enemy enemy;
 	Camera2D camera;
 } Game;
 
