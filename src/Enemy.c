@@ -1,6 +1,9 @@
 #include "Enemy.h"
+#include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
+
+static void followPlayer(Enemy* enemy, Player* player, float delta);
 
 static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
     [ENEMY_TYPE_BAT] =
@@ -51,7 +54,7 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 	enemy->frameTimer = 0.0f;
 }
 
-void updateEnemy(Enemy* enemy, float delta) {
+void updateEnemy(Enemy* enemy, Player* player, float delta) {
 	if (!enemy->active) {
 		return;
 	}
@@ -64,8 +67,8 @@ void updateEnemy(Enemy* enemy, float delta) {
 			enemy->frame = 0;
 		}
 	}
-	enemy->pos.x += enemy->vel.x * delta;
-	enemy->pos.y += enemy->vel.y * delta;
+
+	followPlayer(enemy, player, delta);
 }
 
 void drawEnemy(Enemy* enemy) {
@@ -88,4 +91,23 @@ void drawEnemy(Enemy* enemy) {
 
 	DrawTexturePro(
 	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+}
+
+static void followPlayer(Enemy* enemy, Player* player, float delta) {
+	Vector2 direction = Vector2Subtract(player->pos, enemy->pos);
+
+	float length = Vector2Length(direction);
+
+	if (length > enemy->stats.minDistance) {
+		direction.x /= length;
+		direction.y /= length;
+
+		enemy->vel.x = direction.x * enemy->stats.speed;
+		enemy->vel.y = direction.y * enemy->stats.speed;
+	} else {
+		enemy->vel = (Vector2){0.0f, 0.0f};
+	}
+
+	enemy->pos.x += enemy->vel.x * delta;
+	enemy->pos.y += enemy->vel.y * delta;
 }

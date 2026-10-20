@@ -88,7 +88,7 @@ static void drawMenu(Game* game) {
 static void updateGameplay(Game* game) {
 	handleInput(&game->player);
 
-	updateEnemy(&game->enemy, game->delta);
+	updateEnemy(&game->enemy, &game->player, game->delta);
 	updatePlayer(&game->player, game->delta);
 	updateCamera(game);
 }
