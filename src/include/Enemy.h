@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Player.h"
 #include "raylib.h"
 #include <stdbool.h>
+
+struct Player;
 
 typedef enum EnemyType {
 	ENEMY_TYPE_BAT,
@@ -36,7 +37,9 @@ typedef struct Enemy {
 
 	int frame;
 	float frameTimer;
+	float invincibleTimer;
 } Enemy;
+
 void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type);
-void updateEnemy(Enemy* enemy, Player* player, float delta);
+void updateEnemy(Enemy* enemy, struct Player* player, float delta);
 void drawEnemy(Enemy* enemy);

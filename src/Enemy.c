@@ -1,9 +1,11 @@
 #include "Enemy.h"
+#include "Player.h"
 #include "config.h"
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
 #define PLAYER_INVINCIBLE_TIME 1.0f
+#define ENEMY_BLINK_INTERVAL 0.1f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void attackPlayer(Enemy* enemy, Player* player, float delta);
@@ -60,11 +62,19 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 	enemy->texture = texture;
 	enemy->frame = 0;
 	enemy->frameTimer = 0.0f;
+	enemy->invincibleTimer = 0.0f;
 }
 
-void updateEnemy(Enemy* enemy, Player* player, float delta) {
+void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
 	if (!enemy->active) {
 		return;
+	}
+
+	if (player->invincibleTimer > 0.0f) {
+		player->invincibleTimer -= delta;
+		if (player->invincibleTimer <= 0.0f) {
+			player->invincibleTimer = 0.0f;
+		}
 	}
 
 	enemy->frameTimer += delta;
@@ -98,8 +108,10 @@ void drawEnemy(Enemy* enemy) {
 	    enemy->stats.size,
 	};
 
+	Color tint = WHITE;
+
 	DrawTexturePro(
-	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);
 
 	drawEnemyHealth(enemy);
 }

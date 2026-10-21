@@ -90,7 +90,7 @@ static void updateGameplay(Game* game) {
 	handleInput(&game->player);
 
 	updateEnemy(&game->enemy, &game->player, game->delta);
-	updatePlayer(&game->player, game->delta);
+	updatePlayer(&game->player, &game->enemy, game->delta);
 	updateCamera(game);
 
 	if (game->player.health <= 0) {
