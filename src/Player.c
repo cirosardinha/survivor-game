@@ -3,7 +3,8 @@
 #include "config.h"
 
 #define PLAYER_BLINK_INTERVAL 0.1f
-#define PLAYER_ATTACK_DAMAGE 15
+#define PLAYER_INVINCIBLE_TIME 0.5f
+#define PLAYER_ATTACK_DAMAGE 20
 
 const float scale = 2.0f;
 const float playerWidth = TILE_SIZE * scale;
@@ -35,7 +36,7 @@ void initPlayer(Player* player, Texture2D texture) {
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
-	player->attackCooldown = 2.0f;
+	player->attackCooldown = 0.8f;
 
 	player->texture = texture;
 	player->frame = 0;
@@ -101,6 +102,10 @@ void drawPlayer(Player* const player) {
 }
 
 static void autoAttack(Player* player, Enemy* enemy, float delta) {
+	player->attackTimer += delta;
+
+	if (!enemy->active) return;
+
 	Vector2 dir = playerAttackDir[player->direction];
 	float areaX = (float) player->pos.x + dir.x * playerWidth;
 	float areaY = (float) player->pos.y + dir.y * playerHeight;
@@ -119,17 +124,18 @@ static void autoAttack(Player* player, Enemy* enemy, float delta) {
 	    enemy->stats.size,
 	};
 
-	player->attackTimer += delta;
-
 	if (player->attackTimer >= player->attackCooldown &&
 	    CheckCollisionRecs(playerAttackArea, enemyHitBox)) {
-		enemy->health -= PLAYER_ATTACK_DAMAGE;
-		if (enemy->health < 0) {
-			enemy->health = 0;
-		}
+		damageEnemy(enemy, PLAYER_ATTACK_DAMAGE);
 		player->attackTimer = 0.0f;
-		TraceLog(LOG_INFO, "Player attacked enemy!");
 	}
+}
+
+void damagePlayer(Player* player, int amount) {
+	if (player->invincibleTimer > 0.0f) return;
+
+	player->health -= amount;
+	player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
 }
 
 void clampPlayerToWorld(Player* player) {

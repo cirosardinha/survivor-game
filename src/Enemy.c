@@ -4,8 +4,8 @@
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
-#define PLAYER_INVINCIBLE_TIME 1.0f
 #define ENEMY_BLINK_INTERVAL 0.1f
+#define ENEMY_INVINCIBLE_TIME 0.3f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void attackPlayer(Enemy* enemy, Player* player, float delta);
@@ -15,33 +15,33 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
     [ENEMY_TYPE_BAT] =
         {
             .maxHealth = 30,
-            .speed = 260.0f,
+            .speed = 220.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
-            .attackDamage = 8,
+            .attackDamage = 6,
             .attackCooldown = 0.8f,
         },
 
     [ENEMY_TYPE_BEETLE] =
         {
-            .maxHealth = 120,
+            .maxHealth = 100,
             .speed = 80.0f,
             .size = 64.0f,
             .minDistance = 48.0f,
             .attackRange = 56.0f,
-            .attackDamage = 25,
-            .attackCooldown = 1.5f,
+            .attackDamage = 20,
+            .attackCooldown = 2.0f,
         },
 
     [ENEMY_TYPE_SLIME] =
         {
-            .maxHealth = 70,
-            .speed = 130.0f,
+            .maxHealth = 60,
+            .speed = 120.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
-            .attackDamage = 12,
+            .attackDamage = 10,
             .attackCooldown = 1.2f,
         },
 };
@@ -66,15 +66,14 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 }
 
 void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
+	if (enemy->invincibleTimer > 0.0f) {
+		enemy->invincibleTimer -= delta;
+		if (enemy->invincibleTimer <= 0.0f) {
+			enemy->invincibleTimer = 0.0f;
+		}
+	}
 	if (!enemy->active) {
 		return;
-	}
-
-	if (player->invincibleTimer > 0.0f) {
-		player->invincibleTimer -= delta;
-		if (player->invincibleTimer <= 0.0f) {
-			player->invincibleTimer = 0.0f;
-		}
 	}
 
 	enemy->frameTimer += delta;
@@ -91,6 +90,7 @@ void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
 }
 
 void drawEnemy(Enemy* enemy) {
+	if (!enemy->active) return;
 	float frameWidth = (float) enemy->texture.width / ENEMY_FRAME_COUNT;
 	float frameHeight = (float) enemy->texture.height;
 
@@ -109,6 +109,13 @@ void drawEnemy(Enemy* enemy) {
 	};
 
 	Color tint = WHITE;
+
+	if (enemy->invincibleTimer > 0.0f) {
+		int phase = (int) (enemy->invincibleTimer / ENEMY_BLINK_INTERVAL);
+		if (phase % 2 == 0) {
+			tint = Fade(RED, 0.3f);
+		}
+	}
 
 	DrawTexturePro(
 	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);
@@ -152,12 +159,7 @@ static void attackPlayer(Enemy* enemy, Player* player, float delta) {
 
 	if (distance <= enemy->stats.attackRange &&
 	    enemy->attackTimer >= enemy->stats.attackCooldown) {
-		player->health -= enemy->stats.attackDamage;
-		player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
-
-		if (player->health <= 0) {
-			player->health = 0;
-		};
+		damagePlayer(player, enemy->stats.attackDamage);
 
 		enemy->attackTimer = 0.0f;
 	}
@@ -180,4 +182,16 @@ static void drawEnemyHealth(const Enemy* enemy) {
 
 	DrawRectangleLines(
 	    (int) x, (int) y, (int) barWidth, (int) barHeight, WHITE);
+}
+
+void damageEnemy(Enemy* enemy, int amount) {
+	if (enemy->invincibleTimer > 0.0f) return;
+
+	enemy->health -= amount;
+	enemy->invincibleTimer = ENEMY_INVINCIBLE_TIME;
+
+	if (enemy->health <= 0) {
+		enemy->active = false;
+		enemy->health = 0;
+	}
 }

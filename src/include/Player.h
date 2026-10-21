@@ -43,3 +43,4 @@ typedef struct Player {
 void initPlayer(Player* player, Texture2D);
 void updatePlayer(Player* player, struct Enemy* enemy, float delta);
 void drawPlayer(Player* const player);
+void damagePlayer(Player* player, int amount);

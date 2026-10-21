@@ -43,3 +43,4 @@ typedef struct Enemy {
 void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type);
 void updateEnemy(Enemy* enemy, struct Player* player, float delta);
 void drawEnemy(Enemy* enemy);
+void damageEnemy(Enemy* enemy, int amount);
