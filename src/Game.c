@@ -1,5 +1,6 @@
 #include <stdlib.h>
 
+#include "Collision.h"
 #include "Combat.h"
 #include "Game.h"
 #include "Input.h"
@@ -9,7 +10,7 @@
 #include "raymath.h"
 #include "ui.h"
 
-#define SPAWN_ENEMY_INTERVAL 7.0f
+#define SPAWN_ENEMY_INTERVAL 3.0f
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -113,6 +114,7 @@ static void updateGameplay(Game* game) {
 		if (!enemy->active) continue;
 
 		updateEnemy(enemy, &game->player, game->delta);
+		resolveEnemyPlayerCollision(enemy, &game->player);
 		updateEnemyAttack(enemy, &game->player, game->delta);
 	}
 

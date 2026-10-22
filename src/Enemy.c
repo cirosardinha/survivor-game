@@ -1,6 +1,5 @@
 #include "Enemy.h"
 #include "Player.h"
-#include "config.h"
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
