@@ -17,4 +17,19 @@ void drawPlayerHealth(const Player* player) {
 	DrawRectangle(marginX, marginY, currentWidth, barHeight, GREEN);
 
 	DrawRectangleLines(marginX, marginY, barWidth, barHeight, WHITE);
+
+	DrawText(
+	    TextFormat("%d/%d", player->health, player->maxHealth), marginX + 20,
+	    marginY + 20, 20, WHITE);
+}
+
+void drawTimer(float timer) {
+	int marginX = GetScreenWidth() / 2 - 50;
+	int marginY = GetScreenHeight() * 0.03f;
+
+	int minutes = (int) timer / 60;
+	int seconds = (int) timer % 60;
+
+	DrawText(
+	    TextFormat("%02d:%02d", minutes, seconds), marginX, marginY, 50, WHITE);
 }

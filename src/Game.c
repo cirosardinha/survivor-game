@@ -50,6 +50,7 @@ Game* createGame(void) {
 	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
 	game->spawnTimer = FIRST_SPAWN_DELAY;
+	game->gameTimer = 0.0f;
 
 	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
 	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
@@ -95,6 +96,7 @@ static void drawMenu(Game* game) {
 }
 
 static void updateGameplay(Game* game) {
+	game->gameTimer += game->delta;
 	if (game->player.health <= 0) {
 		changeGameState(game, STATE_GAMEOVER);
 	}
@@ -136,6 +138,7 @@ static void drawGameplay(Game* game) {
 	EndMode2D();
 
 	drawPlayerHealth(&game->player);
+	drawTimer(game->gameTimer);
 }
 
 static void updateGameOver(Game* game) {

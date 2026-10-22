@@ -20,8 +20,10 @@ typedef struct Game {
 
 	Player player;
 	Enemy enemies[MAX_ENEMIES];
-	float spawnTimer;
 	Camera2D camera;
+	float spawnTimer;
+
+	float gameTimer;
 } Game;
 
 Game* createGame(void);
