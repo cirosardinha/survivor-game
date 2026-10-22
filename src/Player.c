@@ -1,34 +1,29 @@
 #include "Player.h"
-// #include "Enemy.h"
 #include "config.h"
 
 #define PLAYER_BLINK_INTERVAL 0.1f
 #define PLAYER_INVINCIBLE_TIME 0.5f
 #define PLAYER_ATTACK_INTERVAL 0.1f
 
-const float scale = 2.0f;
-const float playerWidth = TILE_SIZE * scale;
-const float playerHeight = TILE_SIZE * scale;
-
 static void clampPlayerToWorld(Player* player);
 
 void initPlayer(Player* player, Texture2D texture) {
 	player->pos = (Vector2){
-	    (WORLD_WIDTH * TILE_SIZE - playerWidth) / 2.0f,
-	    (WORLD_HEIGHT * TILE_SIZE - playerHeight) / 2.0f,
+	    (WORLD_WIDTH * TILE_SIZE - PLAYER_WIDTH) / 2.0f,
+	    (WORLD_HEIGHT * TILE_SIZE - PLAYER_HEIGHT) / 2.0f,
 	};
 
 	player->vel = (Vector2){0, 0};
 
 	player->health = 100;
 	player->maxHealth = 100;
-	player->speed = 200.0f;
+	player->speed = 250.0f;
 
 	player->state = PLAYER_WALKING;
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
-	player->attackCooldown = 0.8f;
+	player->attackCooldown = 0.7f;
 
 	player->texture = texture;
 	player->frame = 0;
@@ -70,8 +65,6 @@ void updatePlayer(Player* player, float delta) {
 	player->pos.y += player->vel.y * player->speed * delta;
 
 	clampPlayerToWorld(player);
-
-	// autoAttack(player, enemy, delta);
 }
 
 void drawPlayer(Player* const player) {
@@ -82,8 +75,8 @@ void drawPlayer(Player* const player) {
 	Rectangle dest = {
 	    player->pos.x,
 	    player->pos.y,
-	    frameWidth * scale,
-	    frameHeight * scale,
+	    frameWidth * SCALE,
+	    frameHeight * SCALE,
 	};
 
 	int column = player->frame;
@@ -124,13 +117,13 @@ void clampPlayerToWorld(Player* player) {
 
 	if (player->pos.x < 0) {
 		player->pos.x = 0;
-	} else if (player->pos.x > worldWidth - playerWidth) {
-		player->pos.x = worldWidth - playerWidth;
+	} else if (player->pos.x > worldWidth - PLAYER_WIDTH) {
+		player->pos.x = worldWidth - PLAYER_WIDTH;
 	}
 
 	if (player->pos.y < 0) {
 		player->pos.y = 0;
-	} else if (player->pos.y > worldHeight - playerHeight) {
-		player->pos.y = worldHeight - playerHeight;
+	} else if (player->pos.y > worldHeight - PLAYER_HEIGHT) {
+		player->pos.y = worldHeight - PLAYER_HEIGHT;
 	}
 }

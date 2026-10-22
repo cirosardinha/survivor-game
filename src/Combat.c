@@ -4,7 +4,7 @@
 #include "config.h"
 #include "raymath.h"
 
-#define PLAYER_ATTACK_DAMAGE 15
+#define PLAYER_ATTACK_DAMAGE 20
 
 static const Vector2 playerAttackDir[4] = {
     {0, 1},

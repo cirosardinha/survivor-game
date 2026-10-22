@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Player.h"
+#include "config.h"
 #include "raymath.h"
 
 #define ENEMY_FRAME_COUNT 4
@@ -13,22 +14,22 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
     [ENEMY_TYPE_BAT] =
         {
             .maxHealth = 30,
-            .speed = 220.0f,
+            .speed = 160.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
-            .attackDamage = 6,
-            .attackCooldown = 0.8f,
+            .attackDamage = 5,
+            .attackCooldown = 1.0f,
         },
 
     [ENEMY_TYPE_BEETLE] =
         {
             .maxHealth = 100,
-            .speed = 80.0f,
+            .speed = 70.0f,
             .size = 64.0f,
             .minDistance = 48.0f,
             .attackRange = 56.0f,
-            .attackDamage = 20,
+            .attackDamage = 15,
             .attackCooldown = 2.0f,
         },
 
@@ -39,8 +40,8 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
-            .attackDamage = 10,
-            .attackCooldown = 1.2f,
+            .attackDamage = 8,
+            .attackCooldown = 1.4f,
         },
 };
 
@@ -121,11 +122,20 @@ void drawEnemy(Enemy* enemy) {
 }
 
 static void followPlayer(Enemy* enemy, Player* player, float delta) {
-	Vector2 direction = Vector2Subtract(player->pos, enemy->pos);
+	Vector2 playerCenter = {
+	    player->pos.x + PLAYER_WIDTH / 2.0f,
+	    player->pos.y + PLAYER_HEIGHT / 2.0f,
+	};
 
+	Vector2 enemyCenter = {
+	    enemy->pos.x + enemy->stats.size / 2.0f,
+	    enemy->pos.y + enemy->stats.size / 2.0f,
+	};
+
+	Vector2 direction = Vector2Subtract(playerCenter, enemyCenter);
 	float length = Vector2Length(direction);
 
-	if (length > enemy->stats.minDistance) {
+	if (length > 1.0f) {
 		direction.x /= length;
 		direction.y /= length;
 

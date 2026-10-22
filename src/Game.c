@@ -10,7 +10,8 @@
 #include "raymath.h"
 #include "ui.h"
 
-#define SPAWN_ENEMY_INTERVAL 3.0f
+#define FIRST_SPAWN_DELAY 0.5f
+#define SPAWN_ENEMY_INTERVAL 5.0f
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -48,7 +49,7 @@ Game* createGame(void) {
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
-	game->spawnTimer = SPAWN_ENEMY_INTERVAL;
+	game->spawnTimer = FIRST_SPAWN_DELAY;
 
 	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
 	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
@@ -114,9 +115,11 @@ static void updateGameplay(Game* game) {
 		if (!enemy->active) continue;
 
 		updateEnemy(enemy, &game->player, game->delta);
-		resolveEnemyPlayerCollision(enemy, &game->player);
+		resolveEnemyPlayerCollision(enemy, &game->player, game->delta);
 		updateEnemyAttack(enemy, &game->player, game->delta);
 	}
+
+	resolveAllEnemiesCollision(game->enemies, MAX_ENEMIES, game->delta);
 
 	updateCamera(game);
 }

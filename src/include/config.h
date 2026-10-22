@@ -9,3 +9,7 @@
 #define TILE_SIZE 32
 #define WORLD_WIDTH 50
 #define WORLD_HEIGHT 50
+
+#define SCALE 2.0f
+#define PLAYER_WIDTH (TILE_SIZE * SCALE)
+#define PLAYER_HEIGHT (TILE_SIZE * SCALE)
