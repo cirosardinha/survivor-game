@@ -5,6 +5,7 @@
 #define PLAYER_BLINK_INTERVAL 0.1f
 #define PLAYER_INVINCIBLE_TIME 0.5f
 #define PLAYER_ATTACK_DAMAGE 20
+#define PLAYER_ATTACK_INTERVAL 0.1f
 
 const float scale = 2.0f;
 const float playerWidth = TILE_SIZE * scale;
@@ -51,15 +52,28 @@ void updatePlayer(Player* player, struct Enemy* enemy, float delta) {
 			player->invincibleTimer = 0.0f;
 		}
 	}
-	player->frameTimer += delta;
-	if (player->vel.x != 0.0f || player->vel.y != 0.0f) {
-		if (player->frameTimer >= 0.15f) {
-			player->frameTimer -= 0.15f;
-			player->frame = (player->frame + 1) % 5;
+	if (player->state == PLAYER_ATTACKING) {
+		player->frameTimer += delta;
+		if (player->frameTimer >= PLAYER_ATTACK_INTERVAL) {
+			player->frameTimer -= PLAYER_ATTACK_INTERVAL;
+			player->frame++;
+			if (player->frame >= 4) {
+				player->state = PLAYER_WALKING;
+				player->frame = 0;
+				player->frameTimer = 0.0f;
+			}
 		}
 	} else {
-		player->frame = 0;
-		player->frameTimer = 0.0f;
+		player->frameTimer += delta;
+		if (player->vel.x != 0.0f || player->vel.y != 0.0f) {
+			if (player->frameTimer >= 0.15f) {
+				player->frameTimer -= 0.15f;
+				player->frame = (player->frame + 1) % 5;
+			}
+		} else {
+			player->frame = 0;
+			player->frameTimer = 0.0f;
+		}
 	}
 	player->pos.x += player->vel.x * player->speed * delta;
 	player->pos.y += player->vel.y * player->speed * delta;
@@ -81,8 +95,13 @@ void drawPlayer(Player* const player) {
 	    frameHeight * scale,
 	};
 
+	int column = player->frame;
+	if (player->state == PLAYER_ATTACKING) {
+		column += 5;
+	}
+
 	Rectangle src = {
-	    (float) player->frame * frameWidth,
+	    column * frameWidth,
 	    row * frameHeight,
 	    frameWidth,
 	    frameHeight,
@@ -102,6 +121,7 @@ void drawPlayer(Player* const player) {
 }
 
 static void autoAttack(Player* player, Enemy* enemy, float delta) {
+	bool isCooldownOver = player->attackTimer >= player->attackCooldown;
 	player->attackTimer += delta;
 
 	if (!enemy->active) return;
@@ -124,10 +144,14 @@ static void autoAttack(Player* player, Enemy* enemy, float delta) {
 	    enemy->stats.size,
 	};
 
-	if (player->attackTimer >= player->attackCooldown &&
-	    CheckCollisionRecs(playerAttackArea, enemyHitBox)) {
-		damageEnemy(enemy, PLAYER_ATTACK_DAMAGE);
+	if (isCooldownOver) {
+		player->state = PLAYER_ATTACKING;
+		player->frame = 0;
+		player->frameTimer = 0.0f;
 		player->attackTimer = 0.0f;
+		if (CheckCollisionRecs(playerAttackArea, enemyHitBox)) {
+			damageEnemy(enemy, PLAYER_ATTACK_DAMAGE);
+		}
 	}
 }
 
