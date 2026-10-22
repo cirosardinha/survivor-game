@@ -2,8 +2,6 @@
 
 #include "raylib.h"
 
-struct Enemy;
-
 typedef enum PlayerState {
 	PLAYER_WALKING,
 	PLAYER_ATTACKING,
@@ -41,6 +39,6 @@ typedef struct Player {
 } Player;
 
 void initPlayer(Player* player, Texture2D);
-void updatePlayer(Player* player, struct Enemy* enemy, float delta);
+void updatePlayer(Player* player, float delta);
 void drawPlayer(Player* const player);
 void damagePlayer(Player* player, int amount);

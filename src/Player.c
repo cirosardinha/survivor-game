@@ -1,25 +1,16 @@
 #include "Player.h"
-#include "Enemy.h"
+// #include "Enemy.h"
 #include "config.h"
 
 #define PLAYER_BLINK_INTERVAL 0.1f
 #define PLAYER_INVINCIBLE_TIME 0.5f
-#define PLAYER_ATTACK_DAMAGE 20
 #define PLAYER_ATTACK_INTERVAL 0.1f
 
 const float scale = 2.0f;
 const float playerWidth = TILE_SIZE * scale;
 const float playerHeight = TILE_SIZE * scale;
 
-static const Vector2 playerAttackDir[4] = {
-    {0, 1},
-    {-1, 0},
-    {1, 0},
-    {0, -1},
-};
-
 static void clampPlayerToWorld(Player* player);
-static void autoAttack(Player* player, Enemy* enemy, float delta);
 
 void initPlayer(Player* player, Texture2D texture) {
 	player->pos = (Vector2){
@@ -45,7 +36,7 @@ void initPlayer(Player* player, Texture2D texture) {
 	player->invincibleTimer = 0.0f;
 }
 
-void updatePlayer(Player* player, struct Enemy* enemy, float delta) {
+void updatePlayer(Player* player, float delta) {
 	if (player->invincibleTimer > 0.0f) {
 		player->invincibleTimer -= delta;
 		if (player->invincibleTimer <= 0.0f) {
@@ -80,7 +71,7 @@ void updatePlayer(Player* player, struct Enemy* enemy, float delta) {
 
 	clampPlayerToWorld(player);
 
-	autoAttack(player, enemy, delta);
+	// autoAttack(player, enemy, delta);
 }
 
 void drawPlayer(Player* const player) {
@@ -118,41 +109,6 @@ void drawPlayer(Player* const player) {
 
 	DrawTexturePro(
 	    player->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);
-}
-
-static void autoAttack(Player* player, Enemy* enemy, float delta) {
-	bool isCooldownOver = player->attackTimer >= player->attackCooldown;
-	player->attackTimer += delta;
-
-	if (!enemy->active) return;
-
-	Vector2 dir = playerAttackDir[player->direction];
-	float areaX = (float) player->pos.x + dir.x * playerWidth;
-	float areaY = (float) player->pos.y + dir.y * playerHeight;
-
-	Rectangle playerAttackArea = {
-	    areaX,
-	    areaY,
-	    playerWidth,
-	    playerHeight,
-	};
-
-	Rectangle enemyHitBox = {
-	    enemy->pos.x,
-	    enemy->pos.y,
-	    enemy->stats.size,
-	    enemy->stats.size,
-	};
-
-	if (isCooldownOver) {
-		player->state = PLAYER_ATTACKING;
-		player->frame = 0;
-		player->frameTimer = 0.0f;
-		player->attackTimer = 0.0f;
-		if (CheckCollisionRecs(playerAttackArea, enemyHitBox)) {
-			damageEnemy(enemy, PLAYER_ATTACK_DAMAGE);
-		}
-	}
 }
 
 void damagePlayer(Player* player, int amount) {

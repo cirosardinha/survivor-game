@@ -1,11 +1,15 @@
 #include <stdlib.h>
 
+#include "Combat.h"
 #include "Game.h"
 #include "Input.h"
 #include "Map.h"
 #include "config.h"
 #include "raylib.h"
+#include "raymath.h"
 #include "ui.h"
+
+#define SPAWN_ENEMY_INTERVAL 7.0f
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -17,6 +21,10 @@ static void updateGameOver(Game* game);
 static void drawGameOver(Game* game);
 
 static void updateCamera(Game* game);
+
+static void spawnEnemy(Game* game);
+static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type);
+static Vector2 randomSpawnPosition(const Game* game);
 
 typedef struct StateFunctions {
 	void (*update)(Game* game);
@@ -39,9 +47,7 @@ Game* createGame(void) {
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager->playerTexture);
-	initEnemy(
-	    &game->enemy, game->resourceManager->slimeTexture, game->player.pos,
-	    ENEMY_TYPE_SLIME);
+	game->spawnTimer = SPAWN_ENEMY_INTERVAL;
 
 	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
 	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
@@ -87,22 +93,41 @@ static void drawMenu(Game* game) {
 }
 
 static void updateGameplay(Game* game) {
-	handleInput(&game->player);
-
-	updateEnemy(&game->enemy, &game->player, game->delta);
-	updatePlayer(&game->player, &game->enemy, game->delta);
-	updateCamera(game);
-
 	if (game->player.health <= 0) {
 		changeGameState(game, STATE_GAMEOVER);
 	}
+	handleInput(&game->player);
+
+	updatePlayer(&game->player, game->delta);
+	updatePlayerAttack(&game->player, game->enemies, MAX_ENEMIES, game->delta);
+
+	game->spawnTimer -= game->delta;
+	if (game->spawnTimer <= 0.0f) {
+		spawnEnemy(game);
+		game->spawnTimer = SPAWN_ENEMY_INTERVAL;
+	}
+
+	for (int i = 0; i < MAX_ENEMIES; i++) {
+		Enemy* enemy = &game->enemies[i];
+
+		if (!enemy->active) continue;
+
+		updateEnemy(enemy, &game->player, game->delta);
+		updateEnemyAttack(enemy, &game->player, game->delta);
+	}
+
+	updateCamera(game);
 }
 
 static void drawGameplay(Game* game) {
 	BeginMode2D(game->camera);
 	drawMap(game);
 	drawPlayer(&game->player);
-	drawEnemy(&game->enemy);
+
+	for (int i = 0; i < MAX_ENEMIES; i++) {
+		if (game->enemies[i].active) drawEnemy(&game->enemies[i]);
+	}
+
 	EndMode2D();
 
 	drawPlayerHealth(&game->player);
@@ -150,4 +175,58 @@ static void updateCamera(Game* game) {
 			game->camera.target.y = worldHeight - halfScreenHeight;
 		}
 	}
+}
+
+static void spawnEnemy(Game* game) {
+	for (int i = 0; i < MAX_ENEMIES; i++) {
+		if (!game->enemies[i].active) {
+			EnemyType type =
+			    (EnemyType) GetRandomValue(0, ENEMY_TYPE_COUNT - 1);
+
+			initEnemy(
+			    &game->enemies[i], getEnemyTexture(game->resourceManager, type),
+			    randomSpawnPosition(game), type);
+			return;
+		}
+	}
+}
+
+static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type) {
+	switch (type) {
+		case ENEMY_TYPE_SLIME:
+			return rm->slimeTexture;
+		case ENEMY_TYPE_BEETLE:
+			return rm->beetleTexture;
+		case ENEMY_TYPE_BAT:
+			return rm->batTexture;
+		default:
+			return rm->slimeTexture;
+	}
+}
+
+static Vector2 randomSpawnPosition(const Game* game) {
+	float worldWidth = WORLD_WIDTH * TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+
+	float radius = Vector2Length((Vector2){WINDOW_WIDTH, WINDOW_HEIGHT}) /
+	                   (2.0f * game->camera.zoom) +
+	               100.0f;
+
+	Vector2 pos = game->player.pos;
+
+	for (int tries = 0; tries < 15; tries++) {
+		float angle = GetRandomValue(0, 360) * DEG2RAD;
+		float r = radius + GetRandomValue(0, 100);
+		pos.x = game->player.pos.x + (float) cos(angle) * r;
+		pos.y = game->player.pos.y + (float) sin(angle) * r;
+
+		if (pos.x >= 0 && pos.x <= worldWidth && pos.y >= 0 &&
+		    pos.y <= worldHeight) {
+			return pos;
+		}
+	}
+
+	pos.x = Clamp(pos.x, 0, worldWidth);
+	pos.y = Clamp(pos.y, 0, worldHeight);
+	return pos;
 }

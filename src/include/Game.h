@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "ResourceManager.h"
 
+#define MAX_ENEMIES 16
+
 typedef enum GameState {
 	STATE_MENU,
 	STATE_GAMEPLAY,
@@ -17,7 +19,8 @@ typedef struct Game {
 	ResourceManager* resourceManager;
 
 	Player player;
-	Enemy enemy;
+	Enemy enemies[MAX_ENEMIES];
+	float spawnTimer;
 	Camera2D camera;
 } Game;
 

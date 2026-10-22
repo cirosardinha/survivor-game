@@ -8,7 +8,6 @@
 #define ENEMY_INVINCIBLE_TIME 0.3f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
-static void attackPlayer(Enemy* enemy, Player* player, float delta);
 static void drawEnemyHealth(const Enemy* enemy);
 
 static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
@@ -86,7 +85,6 @@ void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
 	}
 
 	followPlayer(enemy, player, delta);
-	attackPlayer(enemy, player, delta);
 }
 
 void drawEnemy(Enemy* enemy) {
@@ -140,29 +138,6 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 
 	enemy->pos.x += enemy->vel.x * delta;
 	enemy->pos.y += enemy->vel.y * delta;
-}
-
-static void attackPlayer(Enemy* enemy, Player* player, float delta) {
-	if (player->invincibleTimer > 0.0f) return;
-
-	Vector2 enemyCenter = {
-	    enemy->pos.x + enemy->stats.size / 2.0f,
-	    enemy->pos.y + enemy->stats.size / 2.0f,
-	};
-
-	Vector2 playerCenter = {
-	    player->pos.x + TILE_SIZE, player->pos.y + TILE_SIZE};
-
-	float distance = Vector2Distance(enemyCenter, playerCenter);
-
-	enemy->attackTimer += delta;
-
-	if (distance <= enemy->stats.attackRange &&
-	    enemy->attackTimer >= enemy->stats.attackCooldown) {
-		damagePlayer(player, enemy->stats.attackDamage);
-
-		enemy->attackTimer = 0.0f;
-	}
 }
 
 static void drawEnemyHealth(const Enemy* enemy) {
