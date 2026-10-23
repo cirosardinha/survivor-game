@@ -13,6 +13,8 @@
 
 #define FIRST_SPAWN_DELAY 0.5f
 #define SPAWN_ENEMY_INTERVAL 5.0f
+#define PICKUP_SPAWN_MIN 15
+#define PICKUP_SPAWN_MAX 35
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -31,6 +33,10 @@ static void spawnEnemy(Game* game);
 static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type);
 static Vector2 randomSpawnPosition(const Game* game);
 
+static Vector2 randomPickupPosition(const Game* game);
+static float randomPickupDelay(void);
+static void spawnGem(Game* game, Vector2 pos);
+
 typedef struct StateFunctions {
 	void (*update)(Game* game);
 	void (*draw)(Game* game);
@@ -43,7 +49,7 @@ static const StateFunctions stateTable[STATE_COUNT] = {
 };
 
 Game* createGame(void) {
-	Game* game = malloc(sizeof(Game));
+	Game* game = calloc(1, sizeof(Game));
 	if (game == NULL) exit(EXIT_FAILURE);
 	game->currentState = STATE_MENU;
 	game->delta = 0.0f;
@@ -54,6 +60,9 @@ Game* createGame(void) {
 	initPlayer(&game->player, game->resourceManager->playerTexture);
 	game->spawnTimer = FIRST_SPAWN_DELAY;
 	game->gameTimer = 0.0f;
+
+	game->pickup.active = false;
+	game->pickupSpawnTimer = randomPickupDelay();
 
 	game->camera.target = (Vector2){game->player.pos.x, game->player.pos.y};
 	game->camera.offset = (Vector2){WINDOW_WIDTH / 2.0f, WINDOW_HEIGHT / 2.0f};
@@ -103,8 +112,20 @@ static void updateGameplay(Game* game) {
 	game->gameTimer += game->delta;
 	if (game->player.health <= 0) {
 		changeGameState(game, STATE_GAMEOVER);
+		return;
 	}
 	handleInput(&game->player);
+
+	if (!game->pickup.active) {
+		game->pickupSpawnTimer -= game->delta;
+		if (game->pickupSpawnTimer <= 0.0f) {
+			initPickup(
+			    &game->pickup, game->resourceManager->healthPickupTexture,
+			    PICKUP_HEALTH, randomPickupPosition(game));
+			game->pickupSpawnTimer = randomPickupDelay();
+		}
+	}
+	updatePickup(&game->pickup, &game->player, game->delta);
 
 	updatePlayer(&game->player, game->delta);
 	updatePlayerAttack(&game->player, game->enemies, MAX_ENEMIES, game->delta);
@@ -118,11 +139,24 @@ static void updateGameplay(Game* game) {
 	for (int i = 0; i < MAX_ENEMIES; i++) {
 		Enemy* enemy = &game->enemies[i];
 
+		if (enemy->justDied) {
+			enemy->justDied = false;
+			Vector2 center = {
+			    enemy->pos.x + enemy->stats.size / 2.0f,
+			    enemy->pos.y + enemy->stats.size / 2.0f,
+			};
+			spawnGem(game, center);
+		}
+
 		if (!enemy->active) continue;
 
 		updateEnemy(enemy, &game->player, game->delta);
 		resolveEnemyPlayerCollision(enemy, &game->player, game->delta);
 		updateEnemyAttack(enemy, &game->player, game->delta);
+	}
+
+	for (int i = 0; i < MAX_GEMS; i++) {
+		updatePickup(&game->gems[i], &game->player, game->delta);
 	}
 
 	resolveAllEnemiesCollision(game->enemies, MAX_ENEMIES, game->delta);
@@ -139,10 +173,17 @@ static void drawGameplay(Game* game) {
 		if (game->enemies[i].active) drawEnemy(&game->enemies[i]);
 	}
 
+	for (int i = 0; i < MAX_GEMS; i++) {
+		drawPickup(&game->gems[i]);
+	}
+
+	drawPickup(&game->pickup);
+
 	EndMode2D();
 
 	drawPlayerHealth(&game->player);
 	drawTimer(game->gameTimer);
+	drawScore(&game->player);
 }
 
 static void updateGameOver(Game* game) {
@@ -292,8 +333,45 @@ static Vector2 randomSpawnPosition(const Game* game) {
 	return pos;
 }
 
+static Vector2 randomPickupPosition(const Game* game) {
+	Vector2 center = {
+	    game->player.pos.x + PLAYER_WIDTH / 2.0f,
+	    game->player.pos.y + PLAYER_HEIGHT / 2.0f,
+	};
+
+	float angle = GetRandomValue(0, 359) * DEG2RAD;
+	float dist = (float) GetRandomValue(150, 300);
+
+	Vector2 pos = {
+	    center.x + cosf(angle) * dist,
+	    center.y + sinf(angle) * dist,
+	};
+
+	pos.x = Clamp(pos.x, TILE_SIZE, WORLD_WIDTH * TILE_SIZE - TILE_SIZE);
+	pos.y = Clamp(pos.y, TILE_SIZE, WORLD_HEIGHT * TILE_SIZE - TILE_SIZE);
+	return pos;
+}
+
+static float randomPickupDelay(void) {
+	return (float) GetRandomValue(PICKUP_SPAWN_MIN, PICKUP_SPAWN_MAX);
+}
+static void spawnGem(Game* game, Vector2 pos) {
+	for (int i = 0; i < MAX_GEMS; i++) {
+		if (!game->gems[i].active) {
+			initPickup(
+			    &game->gems[i], game->resourceManager->xpGemTexture, PICKUP_XP,
+			    pos);
+			return;
+		}
+	}
+}
+
 static void resetGame(Game* game) {
 	memset(game->enemies, 0, sizeof(game->enemies));
+	memset(game->gems, 0, sizeof(game->gems));
 	initPlayer(&game->player, game->resourceManager->playerTexture);
 	game->spawnTimer = FIRST_SPAWN_DELAY;
+	game->pickup.active = false;
+	game->pickupSpawnTimer = randomPickupDelay();
+	game->gameTimer = 0.0f;
 }

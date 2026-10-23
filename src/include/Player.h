@@ -23,6 +23,7 @@ typedef struct Player {
 	int health;
 	int maxHealth;
 	float speed;
+	int score;
 
 	float invincibleTimer;
 	float attackTimer;
@@ -42,3 +43,4 @@ void initPlayer(Player* player, Texture2D);
 void updatePlayer(Player* player, float delta);
 void drawPlayer(Player* const player);
 void damagePlayer(Player* player, int amount);
+void healPlayer(Player* player, int amount);

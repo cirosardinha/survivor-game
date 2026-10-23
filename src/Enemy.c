@@ -49,6 +49,7 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 	const EnemyStats* stats = &enemyStats[type];
 
 	enemy->active = true;
+	enemy->justDied = false;
 	enemy->pos = pos;
 	enemy->vel = (Vector2){0.0f, 0.0f};
 
@@ -177,5 +178,6 @@ void damageEnemy(Enemy* enemy, int amount) {
 	if (enemy->health <= 0) {
 		enemy->active = false;
 		enemy->health = 0;
+		enemy->justDied = true;
 	}
 }

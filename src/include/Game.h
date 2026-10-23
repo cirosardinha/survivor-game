@@ -1,10 +1,12 @@
 #pragma once
 
 #include "Enemy.h"
+#include "Pickup.h"
 #include "Player.h"
 #include "ResourceManager.h"
 
 #define MAX_ENEMIES 16
+#define MAX_GEMS 32
 
 typedef enum GameState {
 	STATE_MENU,
@@ -22,8 +24,12 @@ typedef struct Game {
 	Enemy enemies[MAX_ENEMIES];
 	Camera2D camera;
 	float spawnTimer;
+	float pickupSpawnTimer;
 
 	float gameTimer;
+
+	Pickup pickup;
+	Pickup gems[MAX_GEMS];
 } Game;
 
 Game* createGame(void);

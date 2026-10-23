@@ -15,6 +15,8 @@ void loadResources(ResourceManager* rm) {
 	rm->batTexture = LoadTexture("resources/images/bat.png");
 	rm->beetleTexture = LoadTexture("resources/images/beetle.png");
 	rm->slimeTexture = LoadTexture("resources/images/slime.png");
+	rm->healthPickupTexture = LoadTexture("resources/images/health_pickup.png");
+	rm->xpGemTexture = LoadTexture("resources/images/xp_gem.png");
 	// rm->jumpSound = LoadSound("resources/sfx/jump.wav");
 	// rm->backgroundMusic = LoadMusicStream("resources/musics/theme.ogg");
 	rm->loaded = 1;
@@ -28,6 +30,8 @@ void unloadResources(ResourceManager* rm) {
 	UnloadTexture(rm->batTexture);
 	UnloadTexture(rm->beetleTexture);
 	UnloadTexture(rm->slimeTexture);
+	UnloadTexture(rm->healthPickupTexture);
+	UnloadTexture(rm->xpGemTexture);
 	// UnloadSound(rm->jumpSound);
 	// UnloadMusicStream(rm->backgroundMusic);
 

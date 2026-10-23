@@ -25,6 +25,7 @@ typedef struct EnemyStats {
 
 typedef struct Enemy {
 	bool active;
+	bool justDied;
 	Vector2 pos;
 	Vector2 vel;
 

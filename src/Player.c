@@ -18,12 +18,13 @@ void initPlayer(Player* player, Texture2D texture) {
 	player->health = 100;
 	player->maxHealth = 100;
 	player->speed = 250.0f;
+	player->score = 0;
 
 	player->state = PLAYER_WALKING;
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
-	player->attackCooldown = 0.7f;
+	player->attackCooldown = 1.2f;
 
 	player->texture = texture;
 	player->frame = 0;
@@ -125,5 +126,14 @@ void clampPlayerToWorld(Player* player) {
 		player->pos.y = 0;
 	} else if (player->pos.y > worldHeight - PLAYER_HEIGHT) {
 		player->pos.y = worldHeight - PLAYER_HEIGHT;
+	}
+}
+
+void healPlayer(Player* player, int amount) {
+	if (player->health >= player->maxHealth) return;
+
+	player->health += amount;
+	if (player->health > player->maxHealth) {
+		player->health = player->maxHealth;
 	}
 }

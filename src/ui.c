@@ -33,3 +33,14 @@ void drawTimer(float timer) {
 	DrawText(
 	    TextFormat("%02d:%02d", minutes, seconds), marginX, marginY, 50, WHITE);
 }
+
+void drawScore(const Player* player) {
+	const char* text = TextFormat("Pontos: %d", player->score);
+	int fontSize = 30;
+
+	int margin = GetScreenWidth() * 0.02f;
+	int x = GetScreenWidth() - MeasureText(text, fontSize) - margin;
+	int y = GetScreenHeight() * 0.03f;
+
+	DrawText(text, x, y, fontSize, WHITE);
+}

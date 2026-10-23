@@ -9,6 +9,8 @@ typedef struct ResourceManager {
 	Texture2D batTexture;
 	Texture2D beetleTexture;
 	Texture2D slimeTexture;
+	Texture2D healthPickupTexture;
+	Texture2D xpGemTexture;
 	// Sound jumpSound;
 	// Music backgroundMusic;
 	int loaded;
