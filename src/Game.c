@@ -9,6 +9,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "ui.h"
+#include <string.h>
 
 #define FIRST_SPAWN_DELAY 0.5f
 #define SPAWN_ENEMY_INTERVAL 5.0f
@@ -23,6 +24,8 @@ static void updateGameOver(Game* game);
 static void drawGameOver(Game* game);
 
 static void updateCamera(Game* game);
+
+static void resetGame(Game* game);
 
 static void spawnEnemy(Game* game);
 static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type);
@@ -88,6 +91,7 @@ static void drawCenteredText(const char* text) {
 static void updateMenu(Game* game) {
 	if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 		changeGameState(game, STATE_GAMEPLAY);
+		resetGame(game);
 	}
 }
 
@@ -142,13 +146,62 @@ static void drawGameplay(Game* game) {
 }
 
 static void updateGameOver(Game* game) {
-	if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-		changeGameState(game, STATE_MENU);
+	Vector2 mouse = GetMousePosition();
+
+	Rectangle menuButton = {
+	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f - 20, 240, 50};
+
+	Rectangle resetButton = {
+	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f + 45, 240, 50};
+
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+		if (CheckCollisionPointRec(mouse, menuButton)) {
+			changeGameState(game, STATE_MENU);
+		} else if (CheckCollisionPointRec(mouse, resetButton)) {
+			resetGame(game);
+			changeGameState(game, STATE_GAMEPLAY);
+		}
 	}
 }
 
 static void drawGameOver(Game* game) {
-	drawCenteredText("Game Over - toque ou ENTER para voltar ao menu");
+	DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, (Color){0, 0, 0, 180});
+
+	const char* title = "GAME OVER";
+	int titleSize = 50;
+
+	DrawText(
+	    title, (WINDOW_WIDTH - MeasureText(title, titleSize)) / 2,
+	    WINDOW_HEIGHT / 2 - 100, titleSize, RED);
+
+	Rectangle menuButton = {
+	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f - 20, 240, 50};
+
+	Rectangle resetButton = {
+	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f + 45, 240, 50};
+
+	Vector2 mouse = GetMousePosition();
+
+	Color menuColor =
+	    CheckCollisionPointRec(mouse, menuButton) ? DARKGRAY : GRAY;
+
+	Color resetColor =
+	    CheckCollisionPointRec(mouse, resetButton) ? DARKGRAY : GRAY;
+
+	DrawRectangleRounded(menuButton, 0.2f, 8, menuColor);
+	DrawRectangleRounded(resetButton, 0.2f, 8, resetColor);
+
+	DrawText(
+	    "Voltar ao menu",
+	    (int) (menuButton.x +
+		       (menuButton.width - MeasureText("Voltar ao menu", 20)) / 2),
+	    (int) (menuButton.y + (menuButton.height - 20) / 2), 20, WHITE);
+
+	DrawText(
+	    "Reset",
+	    (int) (resetButton.x +
+		       (resetButton.width - MeasureText("Reset", 20)) / 2),
+	    (int) (resetButton.y + (resetButton.height - 20) / 2), 20, WHITE);
 }
 
 static void updateCamera(Game* game) {
@@ -237,4 +290,10 @@ static Vector2 randomSpawnPosition(const Game* game) {
 	pos.x = Clamp(pos.x, 0, worldWidth);
 	pos.y = Clamp(pos.y, 0, worldHeight);
 	return pos;
+}
+
+static void resetGame(Game* game) {
+	memset(game->enemies, 0, sizeof(game->enemies));
+	initPlayer(&game->player, game->resourceManager->playerTexture);
+	game->spawnTimer = FIRST_SPAWN_DELAY;
 }
