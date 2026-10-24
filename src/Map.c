@@ -2,26 +2,52 @@
 
 #include "Game.h"
 
+#define CLUSTER_COUNT 8
+#define CLUSTER_MIN_RADIUS 1
+#define CLUSTER_MAX_RADIUS 3
+#define CLUSTER_FILL_PERCENT 75
+#define FLOWER_PERCENT 4
+
 int map[WORLD_WIDTH][WORLD_HEIGHT];
 static int variant[WORLD_WIDTH][WORLD_HEIGHT];
+
+static void placeCluster(int centerX, int centerY, int type) {
+	int radius = GetRandomValue(CLUSTER_MIN_RADIUS, CLUSTER_MAX_RADIUS);
+
+	for (int x = centerX - radius; x <= centerX + radius; x++) {
+		for (int y = centerY - radius; y <= centerY + radius; y++) {
+			if (x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+				continue;
+			}
+
+			int dx = x - centerX;
+			int dy = y - centerY;
+			if (dx * dx + dy * dy > radius * radius) continue;
+
+			if (GetRandomValue(0, 99) < CLUSTER_FILL_PERCENT) {
+				map[x][y] = type;
+			}
+		}
+	}
+}
 
 void initMap(void) {
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int y = 0; y < WORLD_HEIGHT; y++) {
-			int roll = GetRandomValue(0, 99);
-
-			if (roll < 4) {
-				map[x][y] = TILE_ROCK;
-			} else if (roll < 7) {
-				map[x][y] = TILE_BUSH;
-			} else if (roll < 11) {
+			if (GetRandomValue(0, 99) < FLOWER_PERCENT) {
 				map[x][y] = TILE_GRASS_VAR;
 			} else {
 				map[x][y] = TILE_GRASS;
 			}
-
 			variant[x][y] = GetRandomValue(0, 2);
 		}
+	}
+
+	for (int i = 0; i < CLUSTER_COUNT; i++) {
+		int centerX = GetRandomValue(0, WORLD_WIDTH - 1);
+		int centerY = GetRandomValue(0, WORLD_HEIGHT - 1);
+		int type = (GetRandomValue(0, 1) == 0) ? TILE_ROCK : TILE_BUSH;
+		placeCluster(centerX, centerY, type);
 	}
 }
 
