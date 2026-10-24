@@ -9,8 +9,8 @@ static void clampPlayerToWorld(Player* player);
 
 void initPlayer(Player* player, Texture2D texture) {
 	player->pos = (Vector2){
-	    (WORLD_WIDTH * TILE_SIZE - PLAYER_WIDTH) / 2.0f,
-	    (WORLD_HEIGHT * TILE_SIZE - PLAYER_HEIGHT) / 2.0f,
+	    (WORLD_WIDTH * MAP_TILE_SIZE - PLAYER_WIDTH) / 2.0f,
+	    (WORLD_HEIGHT * MAP_TILE_SIZE - PLAYER_HEIGHT) / 2.0f,
 	};
 
 	player->vel = (Vector2){0, 0};
@@ -112,9 +112,9 @@ void damagePlayer(Player* player, int amount) {
 	player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
 }
 
-void clampPlayerToWorld(Player* player) {
-	float worldWidth = WORLD_WIDTH * TILE_SIZE;
-	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+static void clampPlayerToWorld(Player* player) {
+	float worldWidth = WORLD_WIDTH * MAP_TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * MAP_TILE_SIZE;
 
 	if (player->pos.x < 0) {
 		player->pos.x = 0;

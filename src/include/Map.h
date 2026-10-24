@@ -2,6 +2,7 @@
 
 #include "Game.h"
 #include "config.h"
+#include <stdbool.h>
 
 typedef enum TileType {
 	TILE_GRASS,

@@ -252,8 +252,8 @@ static void drawGameOver(Game* game) {
 }
 
 static void updateCamera(Game* game) {
-	float worldWidth = WORLD_WIDTH * TILE_SIZE;
-	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+	float worldWidth = WORLD_WIDTH * MAP_TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * MAP_TILE_SIZE;
 
 	float halfScreenWidth = (float) WINDOW_WIDTH / (2.0f * game->camera.zoom);
 	float halfScreenHeight = (float) WINDOW_HEIGHT / (2.0f * game->camera.zoom);
@@ -313,8 +313,8 @@ static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type) {
 }
 
 static Vector2 randomSpawnPosition(const Game* game) {
-	float worldWidth = WORLD_WIDTH * TILE_SIZE;
-	float worldHeight = WORLD_HEIGHT * TILE_SIZE;
+	float worldWidth = WORLD_WIDTH * MAP_TILE_SIZE;
+	float worldHeight = WORLD_HEIGHT * MAP_TILE_SIZE;
 
 	float radius = Vector2Length((Vector2){WINDOW_WIDTH, WINDOW_HEIGHT}) /
 	                   (2.0f * game->camera.zoom) +
@@ -322,14 +322,16 @@ static Vector2 randomSpawnPosition(const Game* game) {
 
 	Vector2 pos = game->player.pos;
 
-	for (int tries = 0; tries < 15; tries++) {
+	for (int tries = 0; tries < 30; tries++) {
 		float angle = GetRandomValue(0, 360) * DEG2RAD;
 		float r = radius + GetRandomValue(0, 100);
 		pos.x = game->player.pos.x + (float) cos(angle) * r;
 		pos.y = game->player.pos.y + (float) sin(angle) * r;
 
+		Rectangle area = {pos.x, pos.y, MAP_TILE_SIZE, MAP_TILE_SIZE};
+
 		if (pos.x >= 0 && pos.x <= worldWidth && pos.y >= 0 &&
-		    pos.y <= worldHeight) {
+		    pos.y <= worldHeight && !isMapRectBlocked(area)) {
 			return pos;
 		}
 	}
@@ -345,22 +347,31 @@ static Vector2 randomPickupPosition(const Game* game) {
 	    game->player.pos.y + PLAYER_HEIGHT / 2.0f,
 	};
 
-	float angle = GetRandomValue(0, 359) * DEG2RAD;
-	float dist = (float) GetRandomValue(150, 300);
+	Vector2 pos = center;
 
-	Vector2 pos = {
-	    center.x + cosf(angle) * dist,
-	    center.y + sinf(angle) * dist,
-	};
+	for (int tries = 0; tries < 10; tries++) {
+		float angle = GetRandomValue(0, 359) * DEG2RAD;
+		float dist = (float) GetRandomValue(150, 300);
 
-	pos.x = Clamp(pos.x, TILE_SIZE, WORLD_WIDTH * TILE_SIZE - TILE_SIZE);
-	pos.y = Clamp(pos.y, TILE_SIZE, WORLD_HEIGHT * TILE_SIZE - TILE_SIZE);
+		pos.x = center.x + cosf(angle) * dist;
+		pos.y = center.y + sinf(angle) * dist;
+
+		pos.x =
+		    Clamp(pos.x, TILE_SIZE, WORLD_WIDTH * MAP_TILE_SIZE - TILE_SIZE);
+		pos.y =
+		    Clamp(pos.y, TILE_SIZE, WORLD_HEIGHT * MAP_TILE_SIZE - TILE_SIZE);
+
+		Rectangle area = {pos.x - 16.0f, pos.y - 16.0f, 32.0f, 32.0f};
+		if (!isMapRectBlocked(area)) break;
+	}
+
 	return pos;
 }
 
 static float randomPickupDelay(void) {
 	return (float) GetRandomValue(PICKUP_SPAWN_MIN, PICKUP_SPAWN_MAX);
 }
+
 static void spawnGem(Game* game, Vector2 pos) {
 	for (int i = 0; i < MAX_GEMS; i++) {
 		if (!game->gems[i].active) {
