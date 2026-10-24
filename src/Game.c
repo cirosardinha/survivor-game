@@ -127,7 +127,11 @@ static void updateGameplay(Game* game) {
 	}
 	updatePickup(&game->pickup, &game->player, game->delta);
 
+	Vector2 previousPlayerPos = game->player.pos;
 	updatePlayer(&game->player, game->delta);
+
+	resolvePlayerObstacleCollision(&game->player, previousPlayerPos);
+
 	updatePlayerAttack(&game->player, game->enemies, MAX_ENEMIES, game->delta);
 
 	game->spawnTimer -= game->delta;
@@ -150,7 +154,9 @@ static void updateGameplay(Game* game) {
 
 		if (!enemy->active) continue;
 
+		Vector2 previousEnemyPos = enemy->pos;
 		updateEnemy(enemy, &game->player, game->delta);
+		resolveEnemyObstacleCollision(enemy, previousEnemyPos);
 		resolveEnemyPlayerCollision(enemy, &game->player, game->delta);
 		updateEnemyAttack(enemy, &game->player, game->delta);
 	}

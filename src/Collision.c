@@ -1,4 +1,5 @@
 #include "Collision.h"
+#include "Map.h"
 #include "config.h"
 #include "raylib.h"
 #include "raymath.h"
@@ -119,4 +120,59 @@ void resolveAllEnemiesCollision(Enemy* enemies, int enemyCount, float delta) {
 			    &enemies[enemyIndex], &enemies[otherEnemyIndex], delta);
 		}
 	}
+}
+
+static Rectangle getPlayerBody(const Player* player) {
+	float size = PLAYER_WIDTH * BODY_SCALE;
+	return (Rectangle){
+	    player->pos.x + (PLAYER_WIDTH - size) / 2.0f,
+	    player->pos.y + (PLAYER_HEIGHT - size) / 2.0f,
+	    size,
+	    size,
+	};
+}
+
+void resolvePlayerObstacleCollision(Player* player, Vector2 previousPos) {
+	Vector2 newPos = player->pos;
+
+	player->pos = (Vector2){newPos.x, previousPos.y};
+	if (isMapRectBlocked(getPlayerBody(player))) {
+		newPos.x = previousPos.x;
+	}
+
+	player->pos = newPos;
+	if (isMapRectBlocked(getPlayerBody(player))) {
+		newPos.y = previousPos.y;
+	}
+
+	player->pos = newPos;
+}
+
+static Rectangle getEnemyBody(const Enemy* enemy) {
+	float size = enemy->stats.size * ENEMY_BODY_SCALE;
+	float offset = (enemy->stats.size - size) / 2.0f;
+	return (Rectangle){
+	    enemy->pos.x + offset,
+	    enemy->pos.y + offset,
+	    size,
+	    size,
+	};
+}
+
+void resolveEnemyObstacleCollision(Enemy* enemy, Vector2 previousPos) {
+	if (!enemy->active) return;
+
+	Vector2 newPos = enemy->pos;
+
+	enemy->pos = (Vector2){newPos.x, previousPos.y};
+	if (isMapRectBlocked(getEnemyBody(enemy))) {
+		newPos.x = previousPos.x;
+	}
+
+	enemy->pos = newPos;
+	if (isMapRectBlocked(getEnemyBody(enemy))) {
+		newPos.y = previousPos.y;
+	}
+
+	enemy->pos = newPos;
 }

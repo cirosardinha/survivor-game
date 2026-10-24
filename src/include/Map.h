@@ -13,4 +13,5 @@ typedef enum TileType {
 
 extern int map[WORLD_WIDTH][WORLD_HEIGHT];
 void initMap();
+bool isMapRectBlocked(Rectangle rect);
 void drawMap(Game* game);

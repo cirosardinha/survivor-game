@@ -1,6 +1,7 @@
 #include "Map.h"
 
 #include "Game.h"
+#include <math.h>
 
 #define CLUSTER_COUNT 8
 #define CLUSTER_MIN_RADIUS 1
@@ -49,6 +50,26 @@ void initMap(void) {
 		int type = (GetRandomValue(0, 1) == 0) ? TILE_ROCK : TILE_BUSH;
 		placeCluster(centerX, centerY, type);
 	}
+}
+
+static bool isTileBlocked(int x, int y) {
+	if (x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) return true;
+	return map[x][y] == TILE_ROCK || map[x][y] == TILE_BUSH;
+}
+
+bool isMapRectBlocked(Rectangle rect) {
+	int firstX = (int) floorf(rect.x / MAP_TILE_SIZE);
+	int firstY = (int) floorf(rect.y / MAP_TILE_SIZE);
+	int lastX = (int) floorf((rect.x + rect.width - 0.01f) / MAP_TILE_SIZE);
+	int lastY = (int) floorf((rect.y + rect.height - 0.01f) / MAP_TILE_SIZE);
+
+	for (int x = firstX; x <= lastX; x++) {
+		for (int y = firstY; y <= lastY; y++) {
+			if (isTileBlocked(x, y)) return true;
+		}
+	}
+
+	return false;
 }
 
 void drawMap(Game* game) {
