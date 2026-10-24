@@ -12,6 +12,9 @@ ResourceManager* createResourceManager(void) {
 void loadResources(ResourceManager* rm) {
 	rm->playerTexture = LoadTexture("resources/images/player.png");
 	rm->grassTexture = LoadTexture("resources/images/grass.png");
+	rm->grassVarTexture = LoadTexture("resources/images/grass_var.png");
+	rm->bushTexture = LoadTexture("resources/images/bush.png");
+	rm->rockTexture = LoadTexture("resources/images/rock.png");
 	rm->batTexture = LoadTexture("resources/images/bat.png");
 	rm->beetleTexture = LoadTexture("resources/images/beetle.png");
 	rm->slimeTexture = LoadTexture("resources/images/slime.png");
@@ -27,6 +30,9 @@ void unloadResources(ResourceManager* rm) {
 
 	UnloadTexture(rm->playerTexture);
 	UnloadTexture(rm->grassTexture);
+	UnloadTexture(rm->grassVarTexture);
+	UnloadTexture(rm->bushTexture);
+	UnloadTexture(rm->rockTexture);
 	UnloadTexture(rm->batTexture);
 	UnloadTexture(rm->beetleTexture);
 	UnloadTexture(rm->slimeTexture);
