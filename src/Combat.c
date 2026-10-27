@@ -71,6 +71,7 @@ void updateEnemyAttack(Enemy* enemy, Player* player, float delta) {
 
 	if (distance <= enemy->stats.attackRange &&
 	    enemy->attackTimer >= enemy->stats.attackCooldown) {
+		startEnemyAttack(enemy);
 		damagePlayer(player, enemy->stats.attackDamage);
 
 		enemy->attackTimer = 0.0f;

@@ -30,7 +30,6 @@ static void updateCamera(Game* game);
 static void resetGame(Game* game);
 
 static void spawnEnemy(Game* game);
-static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type);
 static Vector2 randomSpawnPosition(const Game* game);
 
 static Vector2 randomPickupPosition(const Game* game);
@@ -290,25 +289,13 @@ static void spawnEnemy(Game* game) {
 		if (!game->enemies[i].active) {
 			EnemyType type =
 			    (EnemyType) GetRandomValue(0, ENEMY_TYPE_COUNT - 1);
+			int variant = GetRandomValue(0, ENEMY_VARIANTS - 1);
 
 			initEnemy(
-			    &game->enemies[i], getEnemyTexture(game->resourceManager, type),
-			    randomSpawnPosition(game), type);
+			    &game->enemies[i], game->resourceManager,
+			    randomSpawnPosition(game), type, variant);
 			return;
 		}
-	}
-}
-
-static Texture2D getEnemyTexture(const ResourceManager* rm, EnemyType type) {
-	switch (type) {
-		case ENEMY_TYPE_SLIME:
-			return rm->slimeTexture;
-		case ENEMY_TYPE_BEETLE:
-			return rm->beetleTexture;
-		case ENEMY_TYPE_BAT:
-			return rm->batTexture;
-		default:
-			return rm->slimeTexture;
 	}
 }
 

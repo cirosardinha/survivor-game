@@ -1,27 +1,25 @@
 #pragma once
 
+#include "Animation.h"
+#include "EnemyType.h"
+#include "Player.h"
+#include "ResourceManager.h"
 #include "raylib.h"
 #include <stdbool.h>
 
-struct Player;
+typedef enum EnemyAnim {
+	ENEMY_ANIM_WALK,
+	ENEMY_ANIM_ATTACK,
+	ENEMY_ANIM_COUNT
+} EnemyAnim;
 
-typedef enum EnemyType {
-	ENEMY_TYPE_BAT,
-	ENEMY_TYPE_BEETLE,
-	ENEMY_TYPE_SLIME,
-	ENEMY_TYPE_COUNT
-} EnemyType;
-
-typedef struct EnemyStats {
-	int maxHealth;
-	float speed;
-	float size;
-	float minDistance;
-
-	float attackRange;
-	int attackDamage;
-	float attackCooldown;
-} EnemyStats;
+typedef enum EnemyDirection {
+	ENEMY_DOWN,
+	ENEMY_UP,
+	ENEMY_LEFT,
+	ENEMY_RIGHT,
+	ENEMY_DIRECTION_COUNT,
+} EnemyDirection;
 
 typedef struct Enemy {
 	bool active;
@@ -31,17 +29,21 @@ typedef struct Enemy {
 
 	int health;
 	float attackTimer;
+	float invincibleTimer;
 
 	EnemyStats stats;
 	EnemyType type;
-	Texture2D texture;
+	int direction;
 
-	int frame;
-	float frameTimer;
-	float invincibleTimer;
+	Animation anims[ENEMY_ANIM_COUNT];
+	AnimState animState;
+
 } Enemy;
 
-void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type);
-void updateEnemy(Enemy* enemy, struct Player* player, float delta);
+void initEnemy(
+    Enemy* enemy, ResourceManager* rm, Vector2 pos, EnemyType type,
+    int variant);
+void updateEnemy(Enemy* enemy, Player* player, float delta);
 void drawEnemy(Enemy* enemy);
+void startEnemyAttack(Enemy* enemy);
 void damageEnemy(Enemy* enemy, int amount);

@@ -3,50 +3,16 @@
 #include "config.h"
 #include "raymath.h"
 
-#define ENEMY_FRAME_COUNT 4
 #define ENEMY_BLINK_INTERVAL 0.1f
 #define ENEMY_INVINCIBLE_TIME 0.3f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void drawEnemyHealth(const Enemy* enemy);
 
-static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
-    [ENEMY_TYPE_BAT] =
-        {
-            .maxHealth = 30,
-            .speed = 160.0f,
-            .size = 64.0f,
-            .minDistance = 40.0f,
-            .attackRange = 48.0f,
-            .attackDamage = 5,
-            .attackCooldown = 1.0f,
-        },
-
-    [ENEMY_TYPE_BEETLE] =
-        {
-            .maxHealth = 100,
-            .speed = 70.0f,
-            .size = 64.0f,
-            .minDistance = 48.0f,
-            .attackRange = 56.0f,
-            .attackDamage = 15,
-            .attackCooldown = 2.0f,
-        },
-
-    [ENEMY_TYPE_SLIME] =
-        {
-            .maxHealth = 60,
-            .speed = 120.0f,
-            .size = 64.0f,
-            .minDistance = 40.0f,
-            .attackRange = 48.0f,
-            .attackDamage = 8,
-            .attackCooldown = 1.4f,
-        },
-};
-
-void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
-	const EnemyStats* stats = &enemyStats[type];
+void initEnemy(
+    Enemy* enemy, ResourceManager* rm, Vector2 pos, EnemyType type,
+    int variant) {
+	const EnemyStats* stats = getEnemyStats(type);
 
 	enemy->active = true;
 	enemy->justDied = false;
@@ -55,14 +21,19 @@ void initEnemy(Enemy* enemy, Texture2D texture, Vector2 pos, EnemyType type) {
 
 	enemy->health = stats->maxHealth;
 	enemy->attackTimer = 0.0f;
+	enemy->invincibleTimer = 0.0f;
 
 	enemy->stats = *stats;
 	enemy->type = type;
+	enemy->direction = ENEMY_DOWN;
 
-	enemy->texture = texture;
-	enemy->frame = 0;
-	enemy->frameTimer = 0.0f;
-	enemy->invincibleTimer = 0.0f;
+	initAnimation(
+	    &enemy->anims[ENEMY_ANIM_WALK], rm->enemyWalkTextures[type][variant],
+	    stats->walkFrameTime, true);
+	initAnimation(
+	    &enemy->anims[ENEMY_ANIM_ATTACK],
+	    rm->enemyAttackTextures[type][variant], stats->attackFrameTime, false);
+	enemy->animState = (AnimState){.current = ENEMY_ANIM_WALK};
 }
 
 void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
@@ -76,36 +47,26 @@ void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
 		return;
 	}
 
-	enemy->frameTimer += delta;
-	if (enemy->frameTimer >= 0.15f) {
-		enemy->frameTimer -= 0.15f;
-		enemy->frame++;
-		if (enemy->frame >= ENEMY_FRAME_COUNT) {
-			enemy->frame = 0;
+	if (enemy->animState.current == ENEMY_ANIM_ATTACK) {
+		enemy->vel = (Vector2){0.0f, 0.0f};
+
+		if (enemy->animState.finished) {
+			setAnimation(&enemy->animState, ENEMY_ANIM_WALK);
 		}
+	} else {
+		followPlayer(enemy, player, delta);
 	}
 
-	followPlayer(enemy, player, delta);
+	updateAnimation(
+	    &enemy->anims[enemy->animState.current], &enemy->animState, delta);
+}
+
+void startEnemyAttack(Enemy* enemy) {
+	setAnimation(&enemy->animState, ENEMY_ANIM_ATTACK);
 }
 
 void drawEnemy(Enemy* enemy) {
 	if (!enemy->active) return;
-	float frameWidth = (float) enemy->texture.width / ENEMY_FRAME_COUNT;
-	float frameHeight = (float) enemy->texture.height;
-
-	Rectangle src = {
-	    (float) enemy->frame * frameWidth,
-	    0.0f,
-	    frameWidth,
-	    frameHeight,
-	};
-
-	Rectangle dest = {
-	    (float) enemy->pos.x,
-	    (float) enemy->pos.y,
-	    enemy->stats.size,
-	    enemy->stats.size,
-	};
 
 	Color tint = WHITE;
 
@@ -116,8 +77,14 @@ void drawEnemy(Enemy* enemy) {
 		}
 	}
 
-	DrawTexturePro(
-	    enemy->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);
+	Vector2 spritePos = {
+	    enemy->pos.x + enemy->stats.size / 2.0f - SPRITE_SIZE / 2.0f,
+	    enemy->pos.y + enemy->stats.size / 2.0f - SPRITE_SIZE / 2.0f,
+	};
+
+	drawAnimation(
+	    &enemy->anims[enemy->animState.current], &enemy->animState, spritePos,
+	    enemy->direction, tint);
 
 	drawEnemyHealth(enemy);
 }
@@ -139,6 +106,12 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 	if (length > 1.0f) {
 		direction.x /= length;
 		direction.y /= length;
+
+		if (fabsf(direction.x) > fabsf(direction.y)) {
+			enemy->direction = direction.x < 0.0f ? ENEMY_LEFT : ENEMY_RIGHT;
+		} else {
+			enemy->direction = direction.y < 0.0f ? ENEMY_UP : ENEMY_DOWN;
+		}
 
 		enemy->vel.x = direction.x * enemy->stats.speed;
 		enemy->vel.y = direction.y * enemy->stats.speed;
