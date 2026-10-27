@@ -1,9 +1,11 @@
 #pragma once
 
+#include "Animation.h"
+#include "ResourceManager.h"
 #include "raylib.h"
 
 typedef enum PlayerState {
-	PLAYER_WALKING,
+	PLAYER_NORMAL,
 	PLAYER_ATTACKING,
 	PLAYER_STATE_COUNT,
 } PlayerState;
@@ -15,6 +17,14 @@ typedef enum PlayerDirection {
 	PLAYER_UP,
 	PLAYER_DIRECTION_COUNT,
 } PlayerDirection;
+
+typedef enum PlayerAnim {
+	PLAYER_ANIM_IDLE,
+	PLAYER_ANIM_WALK,
+	PLAYER_ANIM_WALK_ATTACK,
+	PLAYER_ANIM_ATTACK,
+	PLAYER_ANIM_COUNT,
+} PlayerAnim;
 
 typedef struct Player {
 	Vector2 pos;
@@ -32,15 +42,13 @@ typedef struct Player {
 	PlayerState state;
 	PlayerDirection direction;
 
-	Texture2D texture;
-
-	int frame;
-	float frameTimer;
-
+	Animation anims[PLAYER_ANIM_COUNT];
+	AnimState animState;
 } Player;
 
-void initPlayer(Player* player, Texture2D);
+void initPlayer(Player* player, ResourceManager* rm);
 void updatePlayer(Player* player, float delta);
 void drawPlayer(Player* const player);
+void startPlayerAttack(Player* player);
 void damagePlayer(Player* player, int amount);
 void healPlayer(Player* player, int amount);

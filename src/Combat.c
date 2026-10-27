@@ -20,9 +20,7 @@ void updatePlayerAttack(
 
 	if (!isCooldownOver) return;
 
-	player->state = PLAYER_ATTACKING;
-	player->frame = 0;
-	player->frameTimer = 0.0f;
+	startPlayerAttack(player);
 	player->attackTimer = 0.0f;
 
 	float playerWidth = TILE_SIZE * 2.0f;

@@ -3,11 +3,16 @@
 
 #define PLAYER_BLINK_INTERVAL 0.1f
 #define PLAYER_INVINCIBLE_TIME 0.5f
-#define PLAYER_ATTACK_INTERVAL 0.1f
+
+#define PLAYER_IDLE_FRAME_TIME 0.12f
+#define PLAYER_WALK_FRAME_TIME 0.10F
+#define PLAYER_ATTACK_FRAME_TIME 0.05f
+#define PLAYER_WALK_ATTACK_FRAME_TIME 0.05f
 
 static void clampPlayerToWorld(Player* player);
+static bool isPlayerMoving(const Player* player);
 
-void initPlayer(Player* player, Texture2D texture) {
+void initPlayer(Player* player, ResourceManager* rm) {
 	player->pos = (Vector2){
 	    (WORLD_WIDTH * MAP_TILE_SIZE - PLAYER_WIDTH) / 2.0f,
 	    (WORLD_HEIGHT * MAP_TILE_SIZE - PLAYER_HEIGHT) / 2.0f,
@@ -20,16 +25,31 @@ void initPlayer(Player* player, Texture2D texture) {
 	player->speed = 250.0f;
 	player->score = 0;
 
-	player->state = PLAYER_WALKING;
+	player->state = PLAYER_NORMAL;
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
 	player->attackCooldown = 1.2f;
-
-	player->texture = texture;
-	player->frame = 0;
-	player->frameTimer = 0.0f;
 	player->invincibleTimer = 0.0f;
+
+	initAnimation(
+	    &player->anims[PLAYER_ANIM_IDLE], rm->playerIdleTexture,
+	    PLAYER_IDLE_FRAME_TIME, true);
+	initAnimation(
+	    &player->anims[PLAYER_ANIM_WALK], rm->playerWalkTexture,
+	    PLAYER_WALK_FRAME_TIME, true);
+	initAnimation(
+	    &player->anims[PLAYER_ANIM_ATTACK], rm->playerAttackTexture,
+	    PLAYER_ATTACK_FRAME_TIME, false);
+	initAnimation(
+	    &player->anims[PLAYER_ANIM_WALK_ATTACK], rm->playerWalkAttackTexture,
+	    PLAYER_WALK_ATTACK_FRAME_TIME, false);
+
+	setAnimationRowFrames(&player->anims[PLAYER_ANIM_IDLE], PLAYER_UP, 4);
+
+	player->animState = (AnimState){
+	    .current = PLAYER_ANIM_IDLE,
+	};
 }
 
 void updatePlayer(Player* player, float delta) {
@@ -39,29 +59,20 @@ void updatePlayer(Player* player, float delta) {
 			player->invincibleTimer = 0.0f;
 		}
 	}
-	if (player->state == PLAYER_ATTACKING) {
-		player->frameTimer += delta;
-		if (player->frameTimer >= PLAYER_ATTACK_INTERVAL) {
-			player->frameTimer -= PLAYER_ATTACK_INTERVAL;
-			player->frame++;
-			if (player->frame >= 4) {
-				player->state = PLAYER_WALKING;
-				player->frame = 0;
-				player->frameTimer = 0.0f;
-			}
-		}
-	} else {
-		player->frameTimer += delta;
-		if (player->vel.x != 0.0f || player->vel.y != 0.0f) {
-			if (player->frameTimer >= 0.15f) {
-				player->frameTimer -= 0.15f;
-				player->frame = (player->frame + 1) % 5;
-			}
-		} else {
-			player->frame = 0;
-			player->frameTimer = 0.0f;
-		}
+
+	if (player->state == PLAYER_ATTACKING && player->animState.finished) {
+		player->state = PLAYER_NORMAL;
 	}
+
+	if (player->state == PLAYER_NORMAL) {
+		PlayerAnim anim =
+		    isPlayerMoving(player) ? PLAYER_ANIM_WALK : PLAYER_ANIM_IDLE;
+		setAnimation(&player->animState, anim);
+	}
+
+	updateAnimation(
+	    &player->anims[player->animState.current], &player->animState, delta);
+
 	player->pos.x += player->vel.x * player->speed * delta;
 	player->pos.y += player->vel.y * player->speed * delta;
 
@@ -69,29 +80,6 @@ void updatePlayer(Player* player, float delta) {
 }
 
 void drawPlayer(Player* const player) {
-	float frameWidth = TILE_SIZE;
-	float frameHeight = TILE_SIZE;
-	int row = player->direction;
-
-	Rectangle dest = {
-	    player->pos.x,
-	    player->pos.y,
-	    frameWidth * SCALE,
-	    frameHeight * SCALE,
-	};
-
-	int column = player->frame;
-	if (player->state == PLAYER_ATTACKING) {
-		column += 5;
-	}
-
-	Rectangle src = {
-	    column * frameWidth,
-	    row * frameHeight,
-	    frameWidth,
-	    frameHeight,
-	};
-
 	Color tint = WHITE;
 
 	if (player->invincibleTimer > 0.0f) {
@@ -101,8 +89,22 @@ void drawPlayer(Player* const player) {
 		}
 	}
 
-	DrawTexturePro(
-	    player->texture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, tint);
+	Vector2 spritePos = {
+	    player->pos.x + PLAYER_WIDTH / 2.0f - SPRITE_SIZE / 2.0f,
+	    player->pos.y + PLAYER_HEIGHT / 2.0f - SPRITE_SIZE / 2.0f,
+	};
+
+	drawAnimation(
+	    &player->anims[player->animState.current], &player->animState,
+	    spritePos, player->direction, tint);
+}
+
+void startPlayerAttack(Player* player) {
+	player->state = PLAYER_ATTACKING;
+
+	PlayerAnim anim =
+	    isPlayerMoving(player) ? PLAYER_ANIM_WALK_ATTACK : PLAYER_ANIM_ATTACK;
+	setAnimation(&player->animState, anim);
 }
 
 void damagePlayer(Player* player, int amount) {
@@ -110,6 +112,10 @@ void damagePlayer(Player* player, int amount) {
 
 	player->health -= amount;
 	player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
+}
+
+static bool isPlayerMoving(const Player* player) {
+	return player->vel.x != 0.0f || player->vel.y != 0.0f;
 }
 
 static void clampPlayerToWorld(Player* player) {

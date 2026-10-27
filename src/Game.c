@@ -57,7 +57,7 @@ Game* createGame(void) {
 	loadResources(game->resourceManager);
 
 	initMap();
-	initPlayer(&game->player, game->resourceManager->playerTexture);
+	initPlayer(&game->player, game->resourceManager);
 	game->spawnTimer = FIRST_SPAWN_DELAY;
 	game->gameTimer = 0.0f;
 
@@ -386,7 +386,7 @@ static void spawnGem(Game* game, Vector2 pos) {
 static void resetGame(Game* game) {
 	memset(game->enemies, 0, sizeof(game->enemies));
 	memset(game->gems, 0, sizeof(game->gems));
-	initPlayer(&game->player, game->resourceManager->playerTexture);
+	initPlayer(&game->player, game->resourceManager);
 	game->spawnTimer = FIRST_SPAWN_DELAY;
 	game->pickup.active = false;
 	game->pickupSpawnTimer = randomPickupDelay();

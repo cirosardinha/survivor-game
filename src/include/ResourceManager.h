@@ -4,7 +4,10 @@
 
 // Ponto único de carregamento/descarregamento de texturas, sons e músicas.
 typedef struct ResourceManager {
-	Texture2D playerTexture;
+	Texture2D playerIdleTexture;
+	Texture2D playerWalkTexture;
+	Texture2D playerAttackTexture;
+	Texture2D playerWalkAttackTexture;
 	Texture2D grassTexture;
 	Texture2D bushTexture;
 	Texture2D grassVarTexture;

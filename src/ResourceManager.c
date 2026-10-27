@@ -10,7 +10,14 @@ ResourceManager* createResourceManager(void) {
 }
 
 void loadResources(ResourceManager* rm) {
-	rm->playerTexture = LoadTexture("resources/images/player.png");
+	rm->playerIdleTexture =
+	    LoadTexture("resources/images/player/swordsman1_idle.png");
+	rm->playerWalkTexture =
+	    LoadTexture("resources/images/player/swordsman1_walk.png");
+	rm->playerAttackTexture =
+	    LoadTexture("resources/images/player/swordsman1_attack.png");
+	rm->playerWalkAttackTexture =
+	    LoadTexture("resources/images/player/swordsman1_walk_attack.png");
 	rm->grassTexture = LoadTexture("resources/images/grass.png");
 	rm->grassVarTexture = LoadTexture("resources/images/grass_var.png");
 	rm->bushTexture = LoadTexture("resources/images/bush.png");
@@ -27,8 +34,10 @@ void loadResources(ResourceManager* rm) {
 
 void unloadResources(ResourceManager* rm) {
 	if (!rm->loaded) return;
-
-	UnloadTexture(rm->playerTexture);
+	UnloadTexture(rm->playerIdleTexture);
+	UnloadTexture(rm->playerWalkTexture);
+	UnloadTexture(rm->playerAttackTexture);
+	UnloadTexture(rm->playerWalkAttackTexture);
 	UnloadTexture(rm->grassTexture);
 	UnloadTexture(rm->grassVarTexture);
 	UnloadTexture(rm->bushTexture);
