@@ -19,10 +19,11 @@ void loadResources(ResourceManager* rm) {
 	    LoadTexture("resources/images/player/swordsman1_attack.png");
 	rm->playerWalkAttackTexture =
 	    LoadTexture("resources/images/player/swordsman1_walk_attack.png");
-	rm->grassTexture = LoadTexture("resources/images/grass.png");
-	rm->grassVarTexture = LoadTexture("resources/images/grass_var.png");
-	rm->bushTexture = LoadTexture("resources/images/bush.png");
-	rm->rockTexture = LoadTexture("resources/images/rock.png");
+	rm->grassTexture = LoadTexture("resources/images/terrain/grass.png");
+	rm->grassVarTexture = LoadTexture("resources/images/terrain/grass_var.png");
+	rm->bushTexture = LoadTexture("resources/images/terrain/bush.png");
+	rm->dirtTexture = LoadTexture("resources/images/terrain/dirt.png");
+	rm->rockTexture = LoadTexture("resources/images/terrain/rocks.png");
 	rm->healthPickupTexture = LoadTexture("resources/images/health_pickup.png");
 	rm->xpGemTexture = LoadTexture("resources/images/xp_gem.png");
 
@@ -56,6 +57,7 @@ void unloadResources(ResourceManager* rm) {
 	UnloadTexture(rm->grassTexture);
 	UnloadTexture(rm->grassVarTexture);
 	UnloadTexture(rm->bushTexture);
+	UnloadTexture(rm->dirtTexture);
 	UnloadTexture(rm->rockTexture);
 	UnloadTexture(rm->healthPickupTexture);
 	UnloadTexture(rm->xpGemTexture);

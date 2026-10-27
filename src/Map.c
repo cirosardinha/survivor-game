@@ -3,14 +3,21 @@
 #include "Game.h"
 #include <math.h>
 
-#define CLUSTER_COUNT 8
+#define CLUSTER_COUNT 20
 #define CLUSTER_MIN_RADIUS 1
 #define CLUSTER_MAX_RADIUS 3
 #define CLUSTER_FILL_PERCENT 75
-#define FLOWER_PERCENT 4
+#define DIRT_COUNT 9
+#define DIRT_MIN_RADIUS 3
+#define DIRT_MAX_RADIUS 5
+#define DIRT_FILL_PERCENT 100
+#define BUSH_VARIANTS 3
+#define ROCK_VARIANTS 4
+#define FLOWER_PERCENT 5
 #define SPAWN_CLEAR_RADIUS 4
 
-static void placeCluster(int centerX, int centerY, int type);
+static void
+placeCluster(int centerX, int centerY, int radius, int fillPercent, int type);
 static bool isTileBlocked(int x, int y);
 static void clearSpawnArea(void);
 
@@ -25,19 +32,53 @@ void initMap(void) {
 			} else {
 				map[x][y] = TILE_GRASS;
 			}
-			variant[x][y] = GetRandomValue(0, 2);
 		}
 	}
 
 	for (int i = 0; i < CLUSTER_COUNT; i++) {
 		int centerX = GetRandomValue(0, WORLD_WIDTH - 1);
 		int centerY = GetRandomValue(0, WORLD_HEIGHT - 1);
+		int radius = GetRandomValue(CLUSTER_MIN_RADIUS, CLUSTER_MAX_RADIUS);
 		int type = (GetRandomValue(0, 1) == 0) ? TILE_ROCK : TILE_BUSH;
-		placeCluster(centerX, centerY, type);
+		placeCluster(centerX, centerY, radius, CLUSTER_FILL_PERCENT, type);
 	}
+
+	for (int i = 0; i < DIRT_COUNT; i++) {
+		int centerX = GetRandomValue(0, WORLD_WIDTH - 1);
+		int centerY = GetRandomValue(0, WORLD_HEIGHT - 1);
+		int radius = GetRandomValue(DIRT_MIN_RADIUS, DIRT_MAX_RADIUS);
+		placeCluster(centerX, centerY, radius, DIRT_FILL_PERCENT, TILE_DIRT);
+	}
+
 	clearSpawnArea();
 }
 
+static void
+placeCluster(int centerX, int centerY, int radius, int fillPercent, int type) {
+	for (int x = centerX - radius; x <= centerX + radius; x++) {
+		for (int y = centerY - radius; y <= centerY + radius; y++) {
+			if (x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
+				continue;
+			}
+
+			int dx = x - centerX;
+			int dy = y - centerY;
+			if (dx * dx + dy * dy > radius * radius) continue;
+
+			if (type == TILE_DIRT && isTileBlocked(x, y)) continue;
+
+			if (GetRandomValue(0, 99) < fillPercent) {
+				map[x][y] = type;
+
+				if (type == TILE_ROCK) {
+					variant[x][y] = GetRandomValue(0, ROCK_VARIANTS - 1);
+				} else if (type == TILE_BUSH) {
+					variant[x][y] = GetRandomValue(0, BUSH_VARIANTS - 1);
+				}
+			}
+		}
+	}
+}
 void drawMap(Game* game) {
 	for (int x = 0; x < WORLD_WIDTH; x++) {
 		for (int y = 0; y < WORLD_HEIGHT; y++) {
@@ -54,6 +95,8 @@ void drawMap(Game* game) {
 			Texture2D ground = game->resourceManager->grassTexture;
 			if (tile == TILE_GRASS_VAR) {
 				ground = game->resourceManager->grassVarTexture;
+			} else if (tile == TILE_DIRT) {
+				ground = game->resourceManager->dirtTexture;
 			}
 
 			DrawTexturePro(
@@ -74,26 +117,6 @@ void drawMap(Game* game) {
 				DrawTexturePro(
 				    obstacle, obstacleSrc, dest, (Vector2){0.0f, 0.0f}, 0.0f,
 				    WHITE);
-			}
-		}
-	}
-}
-
-static void placeCluster(int centerX, int centerY, int type) {
-	int radius = GetRandomValue(CLUSTER_MIN_RADIUS, CLUSTER_MAX_RADIUS);
-
-	for (int x = centerX - radius; x <= centerX + radius; x++) {
-		for (int y = centerY - radius; y <= centerY + radius; y++) {
-			if (x < 0 || y < 0 || x >= WORLD_WIDTH || y >= WORLD_HEIGHT) {
-				continue;
-			}
-
-			int dx = x - centerX;
-			int dy = y - centerY;
-			if (dx * dx + dy * dy > radius * radius) continue;
-
-			if (GetRandomValue(0, 99) < CLUSTER_FILL_PERCENT) {
-				map[x][y] = type;
 			}
 		}
 	}

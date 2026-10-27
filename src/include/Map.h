@@ -9,6 +9,7 @@ typedef enum TileType {
 	TILE_GRASS_VAR,
 	TILE_BUSH,
 	TILE_ROCK,
+	TILE_DIRT,
 	TILE_TYPE_COUNT
 } TileType;
 

@@ -12,6 +12,7 @@ typedef struct ResourceManager {
 	Texture2D grassTexture;
 	Texture2D bushTexture;
 	Texture2D grassVarTexture;
+	Texture2D dirtTexture;
 	Texture2D rockTexture;
 	Texture2D healthPickupTexture;
 	Texture2D xpGemTexture;
