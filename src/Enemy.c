@@ -5,6 +5,8 @@
 
 #define ENEMY_BLINK_INTERVAL 0.1f
 #define ENEMY_INVINCIBLE_TIME 0.3f
+#define VARIANT_HEALTH_BONUS 0.5f
+#define VARIANT_DAMAGE_BONUS 0.25f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void drawEnemyHealth(const Enemy* enemy);
@@ -19,13 +21,17 @@ void initEnemy(
 	enemy->pos = pos;
 	enemy->vel = (Vector2){0.0f, 0.0f};
 
-	enemy->health = stats->maxHealth;
 	enemy->attackTimer = 0.0f;
 	enemy->invincibleTimer = 0.0f;
 
 	enemy->stats = *stats;
+	enemy->stats.maxHealth =
+	    (int) (stats->maxHealth * (1.0f + variant * VARIANT_HEALTH_BONUS));
+	enemy->stats.attackDamage =
+	    (int) (stats->attackDamage * (1.0f + variant * VARIANT_DAMAGE_BONUS));
 	enemy->type = type;
 	enemy->direction = ENEMY_DOWN;
+	enemy->health = enemy->stats.maxHealth;
 
 	initAnimation(
 	    &enemy->anims[ENEMY_ANIM_WALK], rm->enemyWalkTextures[type][variant],

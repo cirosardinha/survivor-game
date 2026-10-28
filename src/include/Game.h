@@ -5,7 +5,7 @@
 #include "Player.h"
 #include "ResourceManager.h"
 
-#define MAX_ENEMIES 16
+#define MAX_ENEMIES 32
 #define MAX_GEMS 32
 
 typedef enum GameState {

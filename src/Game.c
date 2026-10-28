@@ -12,9 +12,12 @@
 #include <string.h>
 
 #define FIRST_SPAWN_DELAY 0.5f
-#define SPAWN_ENEMY_INTERVAL 5.0f
 #define PICKUP_SPAWN_MIN 15
 #define PICKUP_SPAWN_MAX 35
+#define SPAWN_INTERVAL_START 5.0f
+#define SPAWN_INTERVAL_MIN 1.0f
+#define SPAWN_RAMP_TIME 240.0f
+#define VARIANT_UNLOCK_INTERVAL 60.0f
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -29,6 +32,8 @@ static void updateCamera(Game* game);
 
 static void resetGame(Game* game);
 
+static float currentSpawnInterval(const Game* game);
+static int maxUnlockedVariant(const Game* game);
 static void spawnEnemy(Game* game);
 static Vector2 randomSpawnPosition(const Game* game);
 
@@ -136,7 +141,7 @@ static void updateGameplay(Game* game) {
 	game->spawnTimer -= game->delta;
 	if (game->spawnTimer <= 0.0f) {
 		spawnEnemy(game);
-		game->spawnTimer = SPAWN_ENEMY_INTERVAL;
+		game->spawnTimer = currentSpawnInterval(game);
 	}
 
 	for (int i = 0; i < MAX_ENEMIES; i++) {
@@ -284,12 +289,29 @@ static void updateCamera(Game* game) {
 	}
 }
 
+static float currentSpawnInterval(const Game* game) {
+	float t = game->gameTimer / SPAWN_RAMP_TIME;
+	if (t > 1.0f) t = 1.0f;
+
+	return SPAWN_INTERVAL_START +
+	       (SPAWN_INTERVAL_MIN - SPAWN_INTERVAL_START) * t;
+}
+
+static int maxUnlockedVariant(const Game* game) {
+	int unlocked = (int) (game->gameTimer / VARIANT_UNLOCK_INTERVAL);
+	if (unlocked > ENEMY_VARIANTS - 1) {
+		unlocked = ENEMY_VARIANTS - 1;
+	}
+
+	return unlocked;
+}
+
 static void spawnEnemy(Game* game) {
 	for (int i = 0; i < MAX_ENEMIES; i++) {
 		if (!game->enemies[i].active) {
 			EnemyType type =
 			    (EnemyType) GetRandomValue(0, ENEMY_TYPE_COUNT - 1);
-			int variant = GetRandomValue(0, ENEMY_VARIANTS - 1);
+			int variant = GetRandomValue(0, maxUnlockedVariant(game));
 
 			initEnemy(
 			    &game->enemies[i], game->resourceManager,
