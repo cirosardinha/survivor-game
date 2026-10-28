@@ -7,6 +7,7 @@
 #define BODY_SCALE 0.5f
 #define PUSH_STRENGTH 20.0f
 #define ENEMY_BODY_SCALE 0.7f
+#define ENEMY_OBSTACLE_BODY_SCALE 0.5f
 #define ENEMY_PUSH_STRENGTH 60.0f
 
 static void
@@ -149,7 +150,7 @@ void resolvePlayerObstacleCollision(Player* player, Vector2 previousPos) {
 }
 
 static Rectangle getEnemyBody(const Enemy* enemy) {
-	float size = enemy->stats.size * ENEMY_BODY_SCALE;
+	float size = enemy->stats.size * ENEMY_OBSTACLE_BODY_SCALE;
 	float offset = (enemy->stats.size - size) / 2.0f;
 	return (Rectangle){
 	    enemy->pos.x + offset,
