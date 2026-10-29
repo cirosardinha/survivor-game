@@ -3,6 +3,7 @@
 #include "Enemy.h"
 #include "Pickup.h"
 #include "Player.h"
+#include "Ranking.h"
 #include "ResourceManager.h"
 
 #define MAX_ENEMIES 32
@@ -30,6 +31,9 @@ typedef struct Game {
 
 	Pickup pickup;
 	Pickup gems[MAX_GEMS];
+
+	bool newRecord;
+
 } Game;
 
 Game* createGame(void);

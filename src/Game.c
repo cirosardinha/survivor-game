@@ -12,12 +12,12 @@
 #include <string.h>
 
 #define FIRST_SPAWN_DELAY 0.5f
-#define PICKUP_SPAWN_MIN 15
-#define PICKUP_SPAWN_MAX 35
 #define SPAWN_INTERVAL_START 5.0f
 #define SPAWN_INTERVAL_MIN 1.0f
 #define SPAWN_RAMP_TIME 240.0f
 #define VARIANT_UNLOCK_INTERVAL 60.0f
+#define PICKUP_SPAWN_MIN 15
+#define PICKUP_SPAWN_MAX 35
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
@@ -27,14 +27,19 @@ static void drawGameplay(Game* game);
 
 static void updateGameOver(Game* game);
 static void drawGameOver(Game* game);
+static void enterGameOver(Game* game);
+static void drawRankingList(int y);
+static void drawCenteredLine(const char* text, int y, int size, Color color);
+static Rectangle gameOverMenuButton(void);
+static Rectangle gameOverResetButton(void);
 
 static void updateCamera(Game* game);
 
 static void resetGame(Game* game);
 
+static void spawnEnemy(Game* game);
 static float currentSpawnInterval(const Game* game);
 static int maxUnlockedVariant(const Game* game);
-static void spawnEnemy(Game* game);
 static Vector2 randomSpawnPosition(const Game* game);
 
 static Vector2 randomPickupPosition(const Game* game);
@@ -59,6 +64,7 @@ Game* createGame(void) {
 	game->delta = 0.0f;
 	game->resourceManager = createResourceManager();
 	loadResources(game->resourceManager);
+	loadRanking();
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager);
@@ -115,7 +121,7 @@ static void drawMenu(Game* game) {
 static void updateGameplay(Game* game) {
 	game->gameTimer += game->delta;
 	if (game->player.health <= 0) {
-		changeGameState(game, STATE_GAMEOVER);
+		enterGameOver(game);
 		return;
 	}
 	handleInput(&game->player);
@@ -198,19 +204,18 @@ static void drawGameplay(Game* game) {
 	drawPlayerLevel(&game->player);
 }
 
+static void enterGameOver(Game* game) {
+	game->newRecord = addRankingScore(game->player.score);
+	changeGameState(game, STATE_GAMEOVER);
+}
+
 static void updateGameOver(Game* game) {
 	Vector2 mouse = GetMousePosition();
 
-	Rectangle menuButton = {
-	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f - 20, 240, 50};
-
-	Rectangle resetButton = {
-	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f + 45, 240, 50};
-
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-		if (CheckCollisionPointRec(mouse, menuButton)) {
+		if (CheckCollisionPointRec(mouse, gameOverMenuButton())) {
 			changeGameState(game, STATE_MENU);
-		} else if (CheckCollisionPointRec(mouse, resetButton)) {
+		} else if (CheckCollisionPointRec(mouse, gameOverResetButton())) {
 			resetGame(game);
 			changeGameState(game, STATE_GAMEPLAY);
 		}
@@ -220,18 +225,24 @@ static void updateGameOver(Game* game) {
 static void drawGameOver(Game* game) {
 	DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, (Color){0, 0, 0, 180});
 
-	const char* title = "GAME OVER";
-	int titleSize = 50;
+	drawCenteredLine("GAME OVER", 70, 50, RED);
 
-	DrawText(
-	    title, (WINDOW_WIDTH - MeasureText(title, titleSize)) / 2,
-	    WINDOW_HEIGHT / 2 - 100, titleSize, RED);
+	int minutes = (int) game->gameTimer / 60;
+	int seconds = (int) game->gameTimer % 60;
+	drawCenteredLine(
+	    TextFormat(
+	        "Pontos: %d    Tempo: %02d:%02d", game->player.score, minutes,
+	        seconds),
+	    140, 24, WHITE);
 
-	Rectangle menuButton = {
-	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f - 20, 240, 50};
+	if (game->newRecord) {
+		drawCenteredLine("Novo recorde!", 175, 28, YELLOW);
+	}
 
-	Rectangle resetButton = {
-	    WINDOW_WIDTH / 2.0f - 120, WINDOW_HEIGHT / 2.0f + 45, 240, 50};
+	drawRankingList(220);
+
+	Rectangle menuButton = gameOverMenuButton();
+	Rectangle resetButton = gameOverResetButton();
 
 	Vector2 mouse = GetMousePosition();
 
@@ -255,6 +266,32 @@ static void drawGameOver(Game* game) {
 	    (int) (resetButton.x +
 		       (resetButton.width - MeasureText("Reset", 20)) / 2),
 	    (int) (resetButton.y + (resetButton.height - 20) / 2), 20, WHITE);
+}
+
+static void drawRankingList(int y) {
+	drawCenteredLine("Melhores pontuacoes", y, 28, YELLOW);
+
+	for (int i = 0; i < RANKING_SIZE; i++) {
+		int score = getRankingScore(i);
+
+		const char* text = score > 0 ? TextFormat("%d. %d", i + 1, score)
+		                             : TextFormat("%d. -", i + 1);
+
+		drawCenteredLine(text, y + 45 + i * 34, 24, WHITE);
+	}
+}
+
+static void drawCenteredLine(const char* text, int y, int size, Color color) {
+	DrawText(
+	    text, (WINDOW_WIDTH - MeasureText(text, size)) / 2, y, size, color);
+}
+
+static Rectangle gameOverMenuButton(void) {
+	return (Rectangle){WINDOW_WIDTH / 2.0f - 120, 430, 240, 50};
+}
+
+static Rectangle gameOverResetButton(void) {
+	return (Rectangle){WINDOW_WIDTH / 2.0f - 120, 495, 240, 50};
 }
 
 static void updateCamera(Game* game) {
@@ -301,9 +338,7 @@ static float currentSpawnInterval(const Game* game) {
 
 static int maxUnlockedVariant(const Game* game) {
 	int unlocked = (int) (game->gameTimer / VARIANT_UNLOCK_INTERVAL);
-	if (unlocked > ENEMY_VARIANTS - 1) {
-		unlocked = ENEMY_VARIANTS - 1;
-	}
+	if (unlocked > ENEMY_VARIANTS - 1) unlocked = ENEMY_VARIANTS - 1;
 
 	return unlocked;
 }
@@ -313,6 +348,7 @@ static void spawnEnemy(Game* game) {
 		if (!game->enemies[i].active) {
 			EnemyType type =
 			    (EnemyType) GetRandomValue(0, ENEMY_TYPE_COUNT - 1);
+
 			int variant = GetRandomValue(0, maxUnlockedVariant(game));
 
 			initEnemy(
