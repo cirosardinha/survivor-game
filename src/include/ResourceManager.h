@@ -1,14 +1,15 @@
 #pragma once
 
 #include "EnemyType.h"
+#include "config.h"
 #include "raylib.h"
 
 // Ponto único de carregamento/descarregamento de texturas, sons e músicas.
 typedef struct ResourceManager {
-	Texture2D playerIdleTexture;
-	Texture2D playerWalkTexture;
-	Texture2D playerAttackTexture;
-	Texture2D playerWalkAttackTexture;
+	Texture2D playerIdleTextures[PLAYER_MAX_LEVEL];
+	Texture2D playerWalkTextures[PLAYER_MAX_LEVEL];
+	Texture2D playerAttackTextures[PLAYER_MAX_LEVEL];
+	Texture2D playerWalkAttackTextures[PLAYER_MAX_LEVEL];
 	Texture2D grassTexture;
 	Texture2D bushTexture;
 	Texture2D grassVarTexture;

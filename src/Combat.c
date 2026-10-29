@@ -4,7 +4,6 @@
 #include "config.h"
 #include "raymath.h"
 
-#define PLAYER_ATTACK_DAMAGE 20
 #define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.5f)
 
 static bool findAttackDirection(
@@ -61,7 +60,7 @@ void updatePlayerAttack(
 				player->attackTimer = 0.0f;
 				attacked = true;
 			}
-			damageEnemy(enemy, PLAYER_ATTACK_DAMAGE);
+			damageEnemy(enemy, player->attackDamage);
 		}
 	}
 }

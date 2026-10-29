@@ -29,6 +29,7 @@ void initEnemy(
 	    (int) (stats->maxHealth * (1.0f + variant * VARIANT_HEALTH_BONUS));
 	enemy->stats.attackDamage =
 	    (int) (stats->attackDamage * (1.0f + variant * VARIANT_DAMAGE_BONUS));
+	enemy->stats.scoreValue = stats->scoreValue * (1 + variant);
 	enemy->type = type;
 	enemy->direction = ENEMY_DOWN;
 	enemy->health = enemy->stats.maxHealth;

@@ -13,6 +13,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .attackCooldown = 1.2f,
             .walkFrameTime = 0.12f,
             .attackFrameTime = 0.07f,
+            .scoreValue = 10,
         },
 
     [ENEMY_TYPE_ORC] =
@@ -27,6 +28,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .attackCooldown = 2.0f,
             .walkFrameTime = 0.15f,
             .attackFrameTime = 0.08f,
+            .scoreValue = 25,
         },
 
     [ENEMY_TYPE_PLANT] =
@@ -41,6 +43,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .attackCooldown = 1.4f,
             .walkFrameTime = 0.14f,
             .attackFrameTime = 0.08f,
+            .scoreValue = 12,
         },
 
     [ENEMY_TYPE_VAMPIRE] =
@@ -55,6 +58,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
             .attackCooldown = 1.0f,
             .walkFrameTime = 0.09f,
             .attackFrameTime = 0.06f,
+            .scoreValue = 15,
         },
 };
 

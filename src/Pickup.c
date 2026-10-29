@@ -23,7 +23,7 @@ void initPickup(
 			pickup->value = 10;
 			break;
 		case PICKUP_XP:
-			pickup->value = 100;
+			pickup->value = 10;
 			break;
 
 		default:
@@ -65,7 +65,7 @@ void updatePickup(Pickup* pickup, Player* player, float delta) {
 			break;
 
 		case PICKUP_XP:
-			player->score += pickup->value;
+			addPlayerXp(player, pickup->value);
 			pickup->active = false;
 			break;
 

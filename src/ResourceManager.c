@@ -11,14 +11,26 @@ ResourceManager* createResourceManager(void) {
 }
 
 void loadResources(ResourceManager* rm) {
-	rm->playerIdleTexture =
-	    LoadTexture("resources/images/player/swordsman1_idle.png");
-	rm->playerWalkTexture =
-	    LoadTexture("resources/images/player/swordsman1_walk.png");
-	rm->playerAttackTexture =
-	    LoadTexture("resources/images/player/swordsman1_attack.png");
-	rm->playerWalkAttackTexture =
-	    LoadTexture("resources/images/player/swordsman1_walk_attack.png");
+	char path[96];
+	for (int level = 0; level < PLAYER_MAX_LEVEL; level++) {
+		snprintf(
+		    path, sizeof(path), "resources/images/player/swordsman%d_idle.png",
+		    level + 1);
+		rm->playerIdleTextures[level] = LoadTexture(path);
+		snprintf(
+		    path, sizeof(path), "resources/images/player/swordsman%d_walk.png",
+		    level + 1);
+		rm->playerWalkTextures[level] = LoadTexture(path);
+		snprintf(
+		    path, sizeof(path),
+		    "resources/images/player/swordsman%d_attack.png", level + 1);
+		rm->playerAttackTextures[level] = LoadTexture(path);
+		snprintf(
+		    path, sizeof(path),
+		    "resources/images/player/swordsman%d_walk_attack.png", level + 1);
+		rm->playerWalkAttackTextures[level] = LoadTexture(path);
+	}
+
 	rm->grassTexture = LoadTexture("resources/images/terrain/grass.png");
 	rm->grassVarTexture = LoadTexture("resources/images/terrain/grass_var.png");
 	rm->bushTexture = LoadTexture("resources/images/terrain/bush.png");
@@ -27,7 +39,6 @@ void loadResources(ResourceManager* rm) {
 	rm->healthPickupTexture = LoadTexture("resources/images/health_pickup.png");
 	rm->xpGemTexture = LoadTexture("resources/images/xp_gem.png");
 
-	char path[96];
 	for (int type = 0; type < ENEMY_TYPE_COUNT; type++) {
 		const char* name = getEnemyStats(type)->name;
 
@@ -50,10 +61,13 @@ void loadResources(ResourceManager* rm) {
 
 void unloadResources(ResourceManager* rm) {
 	if (!rm->loaded) return;
-	UnloadTexture(rm->playerIdleTexture);
-	UnloadTexture(rm->playerWalkTexture);
-	UnloadTexture(rm->playerAttackTexture);
-	UnloadTexture(rm->playerWalkAttackTexture);
+	for (int level = 0; level < PLAYER_MAX_LEVEL; level++) {
+		UnloadTexture(rm->playerIdleTextures[level]);
+		UnloadTexture(rm->playerWalkTextures[level]);
+		UnloadTexture(rm->playerAttackTextures[level]);
+		UnloadTexture(rm->playerWalkAttackTextures[level]);
+	}
+
 	UnloadTexture(rm->grassTexture);
 	UnloadTexture(rm->grassVarTexture);
 	UnloadTexture(rm->bushTexture);

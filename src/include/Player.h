@@ -33,17 +33,24 @@ typedef struct Player {
 	int health;
 	int maxHealth;
 	float speed;
+
 	int score;
+	int xp;
+	int level;
+	int attackDamage;
 
 	float invincibleTimer;
 	float attackTimer;
 	float attackCooldown;
+	float levelUpTimer;
 
 	PlayerState state;
 	PlayerDirection direction;
 
 	Animation anims[PLAYER_ANIM_COUNT];
 	AnimState animState;
+	ResourceManager* resources;
+
 } Player;
 
 void initPlayer(Player* player, ResourceManager* rm);
@@ -52,3 +59,5 @@ void drawPlayer(Player* const player);
 void startPlayerAttack(Player* player);
 void damagePlayer(Player* player, int amount);
 void healPlayer(Player* player, int amount);
+void addPlayerXp(Player* player, int amount);
+float getPlayerXpProgress(const Player* player);

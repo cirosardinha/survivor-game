@@ -44,3 +44,29 @@ void drawScore(const Player* player) {
 
 	DrawText(text, x, y, fontSize, WHITE);
 }
+
+void drawPlayerLevel(const Player* player) {
+	int barWidth = 200;
+	int barHeight = 10;
+
+	int marginX = GetScreenWidth() * 0.02f;
+	int barY = GetScreenHeight() * 0.03f + 45;
+
+	int currentWidth = (int) (barWidth * getPlayerXpProgress(player));
+
+	DrawRectangle(marginX, barY, barWidth, barHeight, DARKGRAY);
+	DrawRectangle(marginX, barY, currentWidth, barHeight, SKYBLUE);
+	DrawRectangleLines(marginX, barY, barWidth, barHeight, WHITE);
+
+	DrawText(
+	    TextFormat("Nivel %d", player->level), marginX, barY + 15, 20, WHITE);
+
+	if (player->levelUpTimer > 0.0f) {
+		const char* text = "LEVEL UP!";
+		int fontSize = 40;
+
+		DrawText(
+		    text, (GetScreenWidth() - MeasureText(text, fontSize)) / 2,
+		    GetScreenHeight() / 4, fontSize, YELLOW);
+	}
+}

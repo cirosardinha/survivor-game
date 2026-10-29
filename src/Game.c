@@ -153,6 +153,7 @@ static void updateGameplay(Game* game) {
 			    enemy->pos.x + enemy->stats.size / 2.0f,
 			    enemy->pos.y + enemy->stats.size / 2.0f,
 			};
+			game->player.score += enemy->stats.scoreValue;
 			spawnGem(game, center);
 		}
 
@@ -194,6 +195,7 @@ static void drawGameplay(Game* game) {
 	drawPlayerHealth(&game->player);
 	drawTimer(game->gameTimer);
 	drawScore(&game->player);
+	drawPlayerLevel(&game->player);
 }
 
 static void updateGameOver(Game* game) {

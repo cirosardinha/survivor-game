@@ -21,6 +21,8 @@ typedef struct EnemyStats {
 	int attackDamage;
 	float attackCooldown;
 
+	int scoreValue;
+
 	float walkFrameTime;
 	float attackFrameTime;
 } EnemyStats;
