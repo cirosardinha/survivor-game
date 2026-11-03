@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Map.h"
 #include "Player.h"
 #include "config.h"
 #include "raymath.h"
@@ -7,9 +8,14 @@
 #define ENEMY_INVINCIBLE_TIME 0.3f
 #define VARIANT_HEALTH_BONUS 0.5f
 #define VARIANT_DAMAGE_BONUS 0.25f
+#define AVOID_LOOKAHEAD 40.0f
+#define AVOID_MEMORY 0.5f
+#define AVOID_BODY_SCALE 0.5f
 
 static void followPlayer(Enemy* enemy, Player* player, float delta);
 static void drawEnemyHealth(const Enemy* enemy);
+static Vector2 avoidObstacles(Enemy* enemy, Vector2 dir, float delta);
+static bool isDirectionBlocked(const Enemy* enemy, Vector2 dir);
 
 void initEnemy(
     Enemy* enemy, ResourceManager* rm, Vector2 pos, EnemyType type,
@@ -23,6 +29,8 @@ void initEnemy(
 
 	enemy->attackTimer = 0.0f;
 	enemy->invincibleTimer = 0.0f;
+	enemy->avoidTimer = 0.0f;
+	enemy->avoidSide = 0;
 
 	enemy->stats = *stats;
 	enemy->stats.maxHealth =
@@ -114,10 +122,15 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 		direction.x /= length;
 		direction.y /= length;
 
-		if (fabsf(direction.x) > fabsf(direction.y)) {
-			enemy->direction = direction.x < 0.0f ? ENEMY_LEFT : ENEMY_RIGHT;
-		} else {
-			enemy->direction = direction.y < 0.0f ? ENEMY_UP : ENEMY_DOWN;
+		direction = avoidObstacles(enemy, direction, delta);
+
+		if (direction.x != 0.0f || direction.y != 0.0f) {
+			if (fabsf(direction.x) > fabsf(direction.y)) {
+				enemy->direction =
+				    direction.x < 0.0f ? ENEMY_LEFT : ENEMY_RIGHT;
+			} else {
+				enemy->direction = direction.y < 0.0f ? ENEMY_UP : ENEMY_DOWN;
+			}
 		}
 
 		enemy->vel.x = direction.x * enemy->stats.speed;
@@ -128,6 +141,54 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 
 	enemy->pos.x += enemy->vel.x * delta;
 	enemy->pos.y += enemy->vel.y * delta;
+}
+
+static bool isDirectionBlocked(const Enemy* enemy, Vector2 dir) {
+	float size = enemy->stats.size * AVOID_BODY_SCALE;
+
+	Vector2 center = {
+	    enemy->pos.x + enemy->stats.size / 2.0f + dir.x * AVOID_LOOKAHEAD,
+	    enemy->pos.y + enemy->stats.size / 2.0f + dir.y * AVOID_LOOKAHEAD,
+	};
+
+	Rectangle probe = {
+	    center.x - size / 2.0f,
+	    center.y - size / 2.0f,
+	    size,
+	    size,
+	};
+
+	return isMapRectBlocked(probe);
+}
+
+static Vector2 avoidObstacles(Enemy* enemy, Vector2 dir, float delta) {
+	if (enemy->avoidTimer > 0.0f) {
+		enemy->avoidTimer -= delta;
+		if (enemy->avoidTimer <= 0.0f) {
+			enemy->avoidSide = 0;
+		}
+	}
+
+	if (!isDirectionBlocked(enemy, dir)) return dir;
+
+	if (enemy->avoidSide == 0) {
+		enemy->avoidSide = GetRandomValue(0, 1) == 0 ? -1 : 1;
+	}
+
+	enemy->avoidTimer = AVOID_MEMORY;
+
+	for (int attempt = 0; attempt < 2; attempt++) {
+		for (int angle = 45; angle <= 135; angle += 45) {
+			Vector2 turned =
+			    Vector2Rotate(dir, enemy->avoidSide * angle * DEG2RAD);
+
+			if (!isDirectionBlocked(enemy, turned)) return turned;
+		}
+
+		enemy->avoidSide = -enemy->avoidSide;
+	}
+
+	return (Vector2){0.0f, 0.0f};
 }
 
 static void drawEnemyHealth(const Enemy* enemy) {

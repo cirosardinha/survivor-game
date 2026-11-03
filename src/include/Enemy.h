@@ -30,6 +30,8 @@ typedef struct Enemy {
 	int health;
 	float attackTimer;
 	float invincibleTimer;
+	float avoidTimer;
+	int avoidSide;
 
 	EnemyStats stats;
 	EnemyType type;
