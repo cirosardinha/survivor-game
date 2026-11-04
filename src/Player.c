@@ -8,17 +8,24 @@
 #define PLAYER_WALK_FRAME_TIME 0.10F
 #define PLAYER_ATTACK_FRAME_TIME 0.05f
 #define PLAYER_WALK_ATTACK_FRAME_TIME 0.05f
-#define LEVEL_UP_HEALTH 20
-#define LEVEL_UP_DAMAGE 10
-#define LEVEL_UP_COOLDOWN 0.15f
+
+#define LEVEL_UP_HEALTH 10
+#define LEVEL_UP_DAMAGE 2
+#define LEVEL_UP_COOLDOWN 0.05f
 #define LEVEL_UP_MESSAGE_TIME 1.5f
+#define MIN_ATTACK_COOLDOWN 0.4f
+
+#define XP_STEP 50
+#define SPRITE_TIER_2_LEVEL 5
+#define SPRITE_TIER_3_LEVEL 10
 
 static void clampPlayerToWorld(Player* player);
 static bool isPlayerMoving(const Player* player);
 static void setupPlayerAnimations(Player* player);
 static void levelUpPlayer(Player* player);
 
-static const int xpForNextLevel[PLAYER_MAX_LEVEL - 1] = {100, 300};
+static int xpToReachLevel(int level);
+static int spriteTier(int level);
 
 void initPlayer(Player* player, ResourceManager* rm) {
 	player->pos = (Vector2){
@@ -151,7 +158,7 @@ void addPlayerXp(Player* player, int amount) {
 	player->xp += amount;
 
 	while (player->level < PLAYER_MAX_LEVEL &&
-	       player->xp >= xpForNextLevel[player->level - 1]) {
+	       player->xp >= xpToReachLevel(player->level + 1)) {
 		levelUpPlayer(player);
 	}
 }
@@ -159,15 +166,15 @@ void addPlayerXp(Player* player, int amount) {
 float getPlayerXpProgress(const Player* player) {
 	if (player->level >= PLAYER_MAX_LEVEL) return 1.0f;
 
-	int previous = player->level == 1 ? 0 : xpForNextLevel[player->level - 2];
-	int next = xpForNextLevel[player->level - 1];
+	int previous = xpToReachLevel(player->level);
+	int next = xpToReachLevel(player->level + 1);
 
 	return (float) (player->xp - previous) / (float) (next - previous);
 }
 
 static void setupPlayerAnimations(Player* player) {
 	const ResourceManager* rm = player->resources;
-	int i = player->level - 1;
+	int i = spriteTier(player->level);
 
 	initAnimation(
 	    &player->anims[PLAYER_ANIM_IDLE], rm->playerIdleTextures[i],
@@ -186,12 +193,29 @@ static void setupPlayerAnimations(Player* player) {
 }
 
 static void levelUpPlayer(Player* player) {
+	int previousTier = spriteTier(player->level);
+
 	player->level++;
 	player->maxHealth += LEVEL_UP_HEALTH;
 	healPlayer(player, LEVEL_UP_HEALTH);
 	player->attackDamage += LEVEL_UP_DAMAGE;
 	player->attackCooldown -= LEVEL_UP_COOLDOWN;
+	if (player->attackCooldown < MIN_ATTACK_COOLDOWN) {
+		player->attackCooldown = MIN_ATTACK_COOLDOWN;
+	}
 	player->levelUpTimer = LEVEL_UP_MESSAGE_TIME;
 
-	setupPlayerAnimations(player);
+	if (spriteTier(player->level) != previousTier) {
+		setupPlayerAnimations(player);
+	}
+}
+
+static int xpToReachLevel(int level) {
+	return XP_STEP * level * (level - 1) / 2;
+}
+
+static int spriteTier(int level) {
+	if (level >= SPRITE_TIER_3_LEVEL) return 2;
+	if (level >= SPRITE_TIER_2_LEVEL) return 1;
+	return 0;
 }

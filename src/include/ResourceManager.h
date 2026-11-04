@@ -16,10 +16,10 @@ typedef struct ResourceManager {
 	Texture2D enemyHpBackTexture;
 	Texture2D enemyHpFillTexture;
 
-	Texture2D playerIdleTextures[PLAYER_MAX_LEVEL];
-	Texture2D playerWalkTextures[PLAYER_MAX_LEVEL];
-	Texture2D playerAttackTextures[PLAYER_MAX_LEVEL];
-	Texture2D playerWalkAttackTextures[PLAYER_MAX_LEVEL];
+	Texture2D playerIdleTextures[PLAYER_SPRITE_TIERS];
+	Texture2D playerWalkTextures[PLAYER_SPRITE_TIERS];
+	Texture2D playerAttackTextures[PLAYER_SPRITE_TIERS];
+	Texture2D playerWalkAttackTextures[PLAYER_SPRITE_TIERS];
 	Texture2D groundTilesetTexture;
 	Texture2D grassVarTexture;
 	Texture2D rockTexture;
