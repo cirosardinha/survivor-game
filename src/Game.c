@@ -21,6 +21,9 @@
 
 static void updateMenu(Game* game);
 static void drawMenu(Game* game);
+static void drawHelpRow(
+    Font font, Rectangle panel, float y, const char* label, Texture2D* icon,
+    const char* text);
 
 static void updateGameplay(Game* game);
 static void drawGameplay(Game* game);
@@ -28,8 +31,10 @@ static void drawGameplay(Game* game);
 static void updateGameOver(Game* game);
 static void drawGameOver(Game* game);
 static void enterGameOver(Game* game);
-static void drawRankingList(int y);
-static void drawCenteredLine(const char* text, int y, int size, Color color);
+static void drawRankingList(Font font, int y);
+static void
+drawCenteredLine(Font font, const char* text, int y, int size, Color color);
+static void drawButton(Font font, Rectangle button, const char* label);
 static Rectangle gameOverMenuButton(void);
 static Rectangle gameOverResetButton(void);
 
@@ -101,12 +106,6 @@ void destroyGame(Game* game) {
 	free(game);
 }
 
-static void drawCenteredText(const char* text) {
-	DrawText(
-	    text, (WINDOW_WIDTH - MeasureText(text, 20)) / 2,
-	    WINDOW_HEIGHT / 2 - 10, 20, DARKGRAY);
-}
-
 static void updateMenu(Game* game) {
 	if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 		changeGameState(game, STATE_GAMEPLAY);
@@ -115,7 +114,60 @@ static void updateMenu(Game* game) {
 }
 
 static void drawMenu(Game* game) {
-	drawCenteredText("Toque ou ENTER para comecar");
+	ResourceManager* rm = game->resourceManager;
+	Font font = rm->uiFont;
+
+	DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, (Color){22, 30, 26, 255});
+
+	drawCenteredLine(font, "SURVIVOR", 65, 90, BLACK);
+	drawCenteredLine(font, "SURVIVOR", 60, 90, (Color){255, 203, 70, 255});
+
+	Rectangle panel = {WINDOW_WIDTH / 2.0f - 330, 190, 660, 300};
+	DrawRectangleRec(panel, (Color){40, 62, 53, 255});
+	DrawRectangleLinesEx(panel, 3, (Color){108, 152, 118, 255});
+
+	drawCenteredLine(font, "Como jogar", 208, 30, YELLOW);
+
+	drawHelpRow(font, panel, 258, "WASD", NULL, "Mover");
+	drawHelpRow(font, panel, 312, "AUTO", NULL, "Ataque automático");
+	drawHelpRow(font, panel, 366, NULL, &rm->xpGemTexture, "Gemas dao XP");
+	drawHelpRow(
+	    font, panel, 420, NULL, &rm->healthPickupTexture,
+	    "Corações curam a vida");
+
+	if (fmodf((float) GetTime(), 1.2f) < 0.8f) {
+		drawCenteredLine(font, "Clique ou ENTER para comecar", 540, 30, WHITE);
+	}
+
+	int best = getRankingScore(0);
+	if (best > 0) {
+		drawCenteredLine(
+		    font, TextFormat("Recorde: %d", best), 600, 30, YELLOW);
+	}
+}
+
+static void drawHelpRow(
+    Font font, Rectangle panel, float y, const char* label, Texture2D* icon,
+    const char* text) {
+	float colX = panel.x + 40;
+	float colW = 110;
+	float textX = colX + colW + 20;
+
+	if (icon != NULL) {
+		Rectangle src = {0.0f, 0.0f, 16.0f, 16.0f};
+		Rectangle dest = {colX + (colW - 48.0f) / 2.0f, y, 48.0f, 48.0f};
+		DrawTexturePro(*icon, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+	} else if (label != NULL) {
+		Vector2 size = MeasureTextEx(font, label, 30, 2);
+		Vector2 pos = {
+		    (float) (int) (colX + (colW - size.x) / 2.0f),
+		    (float) (int) (y + (48.0f - size.y) / 2.0f),
+		};
+		DrawTextEx(font, label, pos, 30, 2, YELLOW);
+	}
+
+	Vector2 textPos = {textX, (float) (int) (y + (48.0f - 30.0f) / 2.0f)};
+	DrawTextEx(font, text, textPos, 30, 2, WHITE);
 }
 
 static void updateGameplay(Game* game) {
@@ -198,10 +250,10 @@ static void drawGameplay(Game* game) {
 
 	EndMode2D();
 
-	drawPlayerHealth(&game->player);
-	drawTimer(game->gameTimer);
-	drawScore(&game->player);
-	drawPlayerLevel(&game->player);
+	drawPlayerHealth(&game->player, game->resourceManager);
+	drawTimer(game->gameTimer, game->resourceManager);
+	drawScore(&game->player, game->resourceManager);
+	drawPlayerLevel(&game->player, game->resourceManager);
 }
 
 static void enterGameOver(Game* game) {
@@ -223,53 +275,33 @@ static void updateGameOver(Game* game) {
 }
 
 static void drawGameOver(Game* game) {
+	Font font = game->resourceManager->uiFont;
+
 	DrawRectangle(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT, (Color){0, 0, 0, 180});
 
-	drawCenteredLine("GAME OVER", 70, 50, RED);
+	drawCenteredLine(font, "GAME OVER", 50, 60, RED);
 
 	int minutes = (int) game->gameTimer / 60;
 	int seconds = (int) game->gameTimer % 60;
 	drawCenteredLine(
+	    font,
 	    TextFormat(
 	        "Pontos: %d    Tempo: %02d:%02d", game->player.score, minutes,
 	        seconds),
-	    140, 24, WHITE);
+	    125, 30, WHITE);
 
 	if (game->newRecord) {
-		drawCenteredLine("Novo recorde!", 175, 28, YELLOW);
+		drawCenteredLine(font, "Novo recorde!", 168, 30, YELLOW);
 	}
 
-	drawRankingList(220);
+	drawRankingList(font, 215);
 
-	Rectangle menuButton = gameOverMenuButton();
-	Rectangle resetButton = gameOverResetButton();
-
-	Vector2 mouse = GetMousePosition();
-
-	Color menuColor =
-	    CheckCollisionPointRec(mouse, menuButton) ? DARKGRAY : GRAY;
-
-	Color resetColor =
-	    CheckCollisionPointRec(mouse, resetButton) ? DARKGRAY : GRAY;
-
-	DrawRectangleRounded(menuButton, 0.2f, 8, menuColor);
-	DrawRectangleRounded(resetButton, 0.2f, 8, resetColor);
-
-	DrawText(
-	    "Voltar ao menu",
-	    (int) (menuButton.x +
-		       (menuButton.width - MeasureText("Voltar ao menu", 20)) / 2),
-	    (int) (menuButton.y + (menuButton.height - 20) / 2), 20, WHITE);
-
-	DrawText(
-	    "Reset",
-	    (int) (resetButton.x +
-		       (resetButton.width - MeasureText("Reset", 20)) / 2),
-	    (int) (resetButton.y + (resetButton.height - 20) / 2), 20, WHITE);
+	drawButton(font, gameOverMenuButton(), "Voltar ao menu");
+	drawButton(font, gameOverResetButton(), "Reset");
 }
 
-static void drawRankingList(int y) {
-	drawCenteredLine("Melhores pontuacoes", y, 28, YELLOW);
+static void drawRankingList(Font font, int y) {
+	drawCenteredLine(font, "Melhores pontuacoes", y, 30, YELLOW);
 
 	for (int i = 0; i < RANKING_SIZE; i++) {
 		int score = getRankingScore(i);
@@ -277,21 +309,44 @@ static void drawRankingList(int y) {
 		const char* text = score > 0 ? TextFormat("%d. %d", i + 1, score)
 		                             : TextFormat("%d. -", i + 1);
 
-		drawCenteredLine(text, y + 45 + i * 34, 24, WHITE);
+		drawCenteredLine(font, text, y + 40 + i * 32, 30, WHITE);
 	}
 }
 
-static void drawCenteredLine(const char* text, int y, int size, Color color) {
-	DrawText(
-	    text, (WINDOW_WIDTH - MeasureText(text, size)) / 2, y, size, color);
+static void
+drawCenteredLine(Font font, const char* text, int y, int size, Color color) {
+	float spacing = (float) (size / 15);
+	Vector2 textSize = MeasureTextEx(font, text, (float) size, spacing);
+
+	Vector2 pos = {
+	    (float) (int) ((WINDOW_WIDTH - textSize.x) / 2.0f), (float) y};
+	DrawTextEx(font, text, pos, (float) size, spacing, color);
+}
+
+static void drawButton(Font font, Rectangle button, const char* label) {
+	bool hover = CheckCollisionPointRec(GetMousePosition(), button);
+	Color fill = hover ? (Color){62, 96, 80, 255} : (Color){40, 62, 53, 255};
+
+	DrawRectangleRec(button, fill);
+	DrawRectangleLinesEx(button, 3, (Color){108, 152, 118, 255});
+
+	float size = 30;
+	float spacing = 2;
+	Vector2 textSize = MeasureTextEx(font, label, size, spacing);
+
+	Vector2 pos = {
+	    (float) (int) (button.x + (button.width - textSize.x) / 2.0f),
+	    (float) (int) (button.y + (button.height - textSize.y) / 2.0f),
+	};
+	DrawTextEx(font, label, pos, size, spacing, (Color){236, 236, 235, 255});
 }
 
 static Rectangle gameOverMenuButton(void) {
-	return (Rectangle){WINDOW_WIDTH / 2.0f - 120, 430, 240, 50};
+	return (Rectangle){WINDOW_WIDTH / 2.0f - 150, 430, 300, 50};
 }
 
 static Rectangle gameOverResetButton(void) {
-	return (Rectangle){WINDOW_WIDTH / 2.0f - 120, 495, 240, 50};
+	return (Rectangle){WINDOW_WIDTH / 2.0f - 150, 495, 300, 50};
 }
 
 static void updateCamera(Game* game) {

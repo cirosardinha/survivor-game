@@ -10,7 +10,10 @@
 #define WORLD_WIDTH 50
 #define WORLD_HEIGHT 50
 
+#define UI_SCALE 2.0f
+#define PLATE_SCALE 2.0f
 #define SCALE 2.0f
+
 #define MAP_TILE_SIZE (TILE_SIZE * SCALE)
 #define PLAYER_WIDTH (TILE_SIZE * SCALE)
 #define PLAYER_HEIGHT (TILE_SIZE * SCALE)

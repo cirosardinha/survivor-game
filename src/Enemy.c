@@ -49,6 +49,8 @@ void initEnemy(
 	    &enemy->anims[ENEMY_ANIM_ATTACK],
 	    rm->enemyAttackTextures[type][variant], stats->attackFrameTime, false);
 	enemy->animState = (AnimState){.current = ENEMY_ANIM_WALK};
+
+	enemy->resources = rm;
 }
 
 void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
@@ -192,22 +194,28 @@ static Vector2 avoidObstacles(Enemy* enemy, Vector2 dir, float delta) {
 }
 
 static void drawEnemyHealth(const Enemy* enemy) {
-	float barWidth = enemy->stats.size * 0.8f;
-	float barHeight = 8.0f;
+	const ResourceManager* rm = enemy->resources;
+	Texture2D back = rm->enemyHpBackTexture;
+	Texture2D fill = rm->enemyHpFillTexture;
 
 	float healthPercent = (float) enemy->health / enemy->stats.maxHealth;
+	if (healthPercent < 0.0f) healthPercent = 0.0f;
 
-	float x = enemy->pos.x + (enemy->stats.size - barWidth) / 2.0f;
-	float y = enemy->pos.y - barHeight - 4.0f;
+	float x =
+	    enemy->pos.x + enemy->stats.size / 2.0f - back.width * SCALE / 2.0f;
+	float y = enemy->pos.y - back.height * SCALE - 4.0f;
 
-	DrawRectangle((int) x, (int) y, (int) barWidth, (int) barHeight, DARKGRAY);
+	DrawTextureEx(back, (Vector2){x, y}, 0.0f, SCALE, WHITE);
 
-	DrawRectangle(
-	    (int) x, (int) y, (int) (barWidth * healthPercent), (int) barHeight,
-	    RED);
-
-	DrawRectangleLines(
-	    (int) x, (int) y, (int) barWidth, (int) barHeight, WHITE);
+	int fillWidth = (int) (fill.width * healthPercent);
+	Rectangle src = {0.0f, 0.0f, (float) fillWidth, (float) fill.height};
+	Rectangle dest = {
+	    x + 1 * SCALE,
+	    y + 1 * SCALE,
+	    fillWidth * SCALE,
+	    fill.height * SCALE,
+	};
+	DrawTexturePro(fill, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 }
 
 void damageEnemy(Enemy* enemy, int amount) {

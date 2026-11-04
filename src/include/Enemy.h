@@ -39,6 +39,7 @@ typedef struct Enemy {
 
 	Animation anims[ENEMY_ANIM_COUNT];
 	AnimState animState;
+	ResourceManager* resources;
 
 } Enemy;
 

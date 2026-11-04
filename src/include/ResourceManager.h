@@ -6,6 +6,16 @@
 
 // Ponto único de carregamento/descarregamento de texturas, sons e músicas.
 typedef struct ResourceManager {
+	Font uiFont;
+	Texture2D hpFrameTexture;
+	Texture2D hpFillTexture;
+	Texture2D xpFrameTexture;
+	Texture2D xpFillTexture;
+	Texture2D scoreFrameTexture;
+	Texture2D timerFrameTexture;
+	Texture2D enemyHpBackTexture;
+	Texture2D enemyHpFillTexture;
+
 	Texture2D playerIdleTextures[PLAYER_MAX_LEVEL];
 	Texture2D playerWalkTextures[PLAYER_MAX_LEVEL];
 	Texture2D playerAttackTextures[PLAYER_MAX_LEVEL];
