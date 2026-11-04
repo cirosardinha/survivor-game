@@ -20,10 +20,8 @@ typedef struct ResourceManager {
 	Texture2D playerWalkTextures[PLAYER_MAX_LEVEL];
 	Texture2D playerAttackTextures[PLAYER_MAX_LEVEL];
 	Texture2D playerWalkAttackTextures[PLAYER_MAX_LEVEL];
-	Texture2D grassTexture;
-	Texture2D bushTexture;
+	Texture2D groundTilesetTexture;
 	Texture2D grassVarTexture;
-	Texture2D dirtTexture;
 	Texture2D rockTexture;
 	Texture2D healthPickupTexture;
 	Texture2D xpGemTexture;

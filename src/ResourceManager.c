@@ -31,10 +31,10 @@ void loadResources(ResourceManager* rm) {
 		rm->playerWalkAttackTextures[level] = LoadTexture(path);
 	}
 
-	rm->grassTexture = LoadTexture("resources/images/terrain/grass.png");
+	rm->groundTilesetTexture =
+	    LoadTexture("resources/images/terrain/ground_tileset.png");
 	rm->grassVarTexture = LoadTexture("resources/images/terrain/grass_var.png");
-	rm->bushTexture = LoadTexture("resources/images/terrain/bush.png");
-	rm->dirtTexture = LoadTexture("resources/images/terrain/dirt.png");
+	rm->rockTexture = LoadTexture("resources/images/terrain/rocks.png");
 	rm->rockTexture = LoadTexture("resources/images/terrain/rocks.png");
 	rm->healthPickupTexture =
 	    LoadTexture("resources/images/pickups/health_pickup.png");
@@ -81,10 +81,9 @@ void unloadResources(ResourceManager* rm) {
 		UnloadTexture(rm->playerWalkAttackTextures[level]);
 	}
 
-	UnloadTexture(rm->grassTexture);
+	UnloadTexture(rm->groundTilesetTexture);
 	UnloadTexture(rm->grassVarTexture);
-	UnloadTexture(rm->bushTexture);
-	UnloadTexture(rm->dirtTexture);
+	UnloadTexture(rm->rockTexture);
 	UnloadTexture(rm->rockTexture);
 	UnloadTexture(rm->healthPickupTexture);
 	UnloadTexture(rm->xpGemTexture);
