@@ -5,6 +5,8 @@
 #include "Player.h"
 #include "Ranking.h"
 #include "ResourceManager.h"
+#include "raylib.h"
+#include <stdbool.h>
 
 #define MAX_ENEMIES 32
 #define MAX_GEMS 32
@@ -41,3 +43,4 @@ void updateGame(Game* game);
 void drawGame(Game* game);
 void destroyGame(Game* game);
 void changeGameState(Game* game, GameState newState);
+void resetGame(Game* game);

@@ -1,5 +1,5 @@
 #include "ui.h"
-#include "raylib.h"
+#include "config.h"
 
 void drawPlayerHealth(const Player* player, const ResourceManager* rm) {
 	float x = GetScreenWidth() * 0.02f;
@@ -107,4 +107,31 @@ void drawPlayerLevel(const Player* player, const ResourceManager* rm) {
 		        (GetScreenWidth() - size.x) / 2.0f, GetScreenHeight() / 3.0f},
 		    fontSize, spacing, YELLOW);
 	}
+}
+void drawButton(Font font, Rectangle button, const char* label) {
+	bool hover = CheckCollisionPointRec(GetMousePosition(), button);
+	Color fill = hover ? (Color){62, 96, 80, 255} : (Color){40, 62, 53, 255};
+
+	DrawRectangleRec(button, fill);
+	DrawRectangleLinesEx(button, 3, (Color){108, 152, 118, 255});
+
+	float size = 30;
+	float spacing = 2;
+	Vector2 textSize = MeasureTextEx(font, label, size, spacing);
+
+	Vector2 pos = {
+	    (float) (int) (button.x + (button.width - textSize.x) / 2.0f),
+	    (float) (int) (button.y + (button.height - textSize.y) / 2.0f),
+	};
+	DrawTextEx(font, label, pos, size, spacing, (Color){236, 236, 235, 255});
+}
+
+void drawCenteredLine(
+    Font font, const char* text, int y, int size, Color color) {
+	float spacing = (float) (size / 15);
+	Vector2 textSize = MeasureTextEx(font, text, (float) size, spacing);
+
+	Vector2 pos = {
+	    (float) (int) ((WINDOW_WIDTH - textSize.x) / 2.0f), (float) y};
+	DrawTextEx(font, text, pos, (float) size, spacing, color);
 }
