@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Ranking.h"
 #include "ResourceManager.h"
+#include "Upgrades.h"
 #include "raylib.h"
 #include <stdbool.h>
 
@@ -15,7 +16,8 @@ typedef enum GameState {
 	STATE_MENU,
 	STATE_GAMEPLAY,
 	STATE_GAMEOVER,
-	STATE_COUNT // total de estados, não é uma tela
+	STATE_LEVELUP,
+	STATE_COUNT
 } GameState;
 
 typedef struct Game {
@@ -35,6 +37,7 @@ typedef struct Game {
 	Pickup gems[MAX_GEMS];
 
 	bool newRecord;
+	UpgradeType upgradeChoices[UPGRADE_CHOICES];
 
 } Game;
 

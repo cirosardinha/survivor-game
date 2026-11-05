@@ -15,6 +15,7 @@ static const StateFunctions stateTable[STATE_COUNT] = {
     [STATE_MENU] = {updateMenu, drawMenu},
     [STATE_GAMEPLAY] = {updateGameplay, drawGameplay},
     [STATE_GAMEOVER] = {updateGameOver, drawGameOver},
+    [STATE_LEVELUP] = {updateLevelUp, drawLevelUp},
 };
 
 Game* createGame(void) {

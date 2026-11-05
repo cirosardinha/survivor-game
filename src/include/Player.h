@@ -38,11 +38,12 @@ typedef struct Player {
 	int xp;
 	int level;
 	int attackDamage;
+	float pickupRange;
+	int pendingLevelUps;
 
 	float invincibleTimer;
 	float attackTimer;
 	float attackCooldown;
-	float levelUpTimer;
 
 	PlayerState state;
 	PlayerDirection direction;

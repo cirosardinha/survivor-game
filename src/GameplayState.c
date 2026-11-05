@@ -28,6 +28,11 @@ void updateGameplay(Game* game) {
 		enterGameOver(game);
 		return;
 	}
+
+	if (game->player.pendingLevelUps > 0) {
+		enterLevelUp(game);
+		return;
+	}
 	handleInput(&game->player);
 
 	if (!game->pickup.active) {

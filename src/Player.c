@@ -9,12 +9,6 @@
 #define PLAYER_ATTACK_FRAME_TIME 0.05f
 #define PLAYER_WALK_ATTACK_FRAME_TIME 0.05f
 
-#define LEVEL_UP_HEALTH 10
-#define LEVEL_UP_DAMAGE 2
-#define LEVEL_UP_COOLDOWN 0.05f
-#define LEVEL_UP_MESSAGE_TIME 1.5f
-#define MIN_ATTACK_COOLDOWN 0.4f
-
 #define XP_STEP 50
 #define SPRITE_TIER_2_LEVEL 5
 #define SPRITE_TIER_3_LEVEL 10
@@ -42,6 +36,9 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	player->xp = 0;
 	player->level = 1;
 	player->attackDamage = 12;
+	player->pickupRange = PICKUP_BASE_RANGE;
+	player->pendingLevelUps = 0;
+
 	player->resources = rm;
 
 	player->state = PLAYER_NORMAL;
@@ -50,7 +47,6 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	player->attackTimer = 0.0f;
 	player->attackCooldown = 1.2f;
 	player->invincibleTimer = 0.0f;
-	player->levelUpTimer = 0.0f;
 
 	setupPlayerAnimations(player);
 
@@ -59,10 +55,6 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	};
 }
 void updatePlayer(Player* player, float delta) {
-	if (player->levelUpTimer > 0.0f) {
-		player->levelUpTimer -= delta;
-	}
-
 	if (player->invincibleTimer > 0.0f) {
 		player->invincibleTimer -= delta;
 		if (player->invincibleTimer <= 0.0f) {
@@ -196,14 +188,7 @@ static void levelUpPlayer(Player* player) {
 	int previousTier = spriteTier(player->level);
 
 	player->level++;
-	player->maxHealth += LEVEL_UP_HEALTH;
-	healPlayer(player, LEVEL_UP_HEALTH);
-	player->attackDamage += LEVEL_UP_DAMAGE;
-	player->attackCooldown -= LEVEL_UP_COOLDOWN;
-	if (player->attackCooldown < MIN_ATTACK_COOLDOWN) {
-		player->attackCooldown = MIN_ATTACK_COOLDOWN;
-	}
-	player->levelUpTimer = LEVEL_UP_MESSAGE_TIME;
+	player->pendingLevelUps++;
 
 	if (spriteTier(player->level) != previousTier) {
 		setupPlayerAnimations(player);

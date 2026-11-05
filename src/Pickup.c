@@ -4,7 +4,6 @@
 
 #define PICKUP_FRAME_SIZE 16.0f
 #define PICKUP_SIZE (PICKUP_FRAME_SIZE * SCALE)
-#define PICKUP_COLLECT_RANGE PICKUP_SIZE
 #define PICKUP_LIFE_TIME 10.0f
 #define PICKUP_FRAME_COUNT 4
 
@@ -51,7 +50,7 @@ void updatePickup(Pickup* pickup, Player* player, float delta) {
 	    player->pos.y + PLAYER_HEIGHT / 2.0f,
 	};
 
-	float range = PICKUP_COLLECT_RANGE;
+	float range = player->pickupRange;
 	bool inRange =
 	    Vector2DistanceSqr(playerCenter, pickup->pos) < range * range;
 

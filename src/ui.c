@@ -1,6 +1,10 @@
 #include "ui.h"
 #include "config.h"
 
+static void drawTextInFrame(
+    const ResourceManager* rm, const char* text, Vector2 frameOrigin,
+    int frameHeight, float areaX, float areaWidth, float scale);
+
 void drawPlayerHealth(const Player* player, const ResourceManager* rm) {
 	float x = GetScreenWidth() * 0.02f;
 	float y = GetScreenHeight() * 0.03f;
@@ -21,6 +25,11 @@ void drawPlayerHealth(const Player* player, const ResourceManager* rm) {
 	};
 	DrawTexturePro(
 	    rm->hpFillTexture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
+
+	drawTextInFrame(
+	    rm, TextFormat("%d/%d", player->health, player->maxHealth),
+	    (Vector2){x, y}, rm->hpFrameTexture.height, 25, rm->hpFillTexture.width,
+	    UI_SCALE);
 }
 
 static void drawTextInFrame(
@@ -94,19 +103,6 @@ void drawPlayerLevel(const Player* player, const ResourceManager* rm) {
 	DrawTextEx(
 	    rm->uiFont, TextFormat("Nivel %d", player->level),
 	    (Vector2){x, y + 24 * UI_SCALE + 6}, 30, 2, WHITE);
-
-	if (player->levelUpTimer > 0.0f) {
-		const char* text = "LEVEL UP!";
-		float fontSize = 50;
-		float spacing = 4;
-
-		Vector2 size = MeasureTextEx(rm->uiFont, text, fontSize, spacing);
-		DrawTextEx(
-		    rm->uiFont, text,
-		    (Vector2){
-		        (GetScreenWidth() - size.x) / 2.0f, GetScreenHeight() / 3.0f},
-		    fontSize, spacing, YELLOW);
-	}
 }
 void drawButton(Font font, Rectangle button, const char* label) {
 	bool hover = CheckCollisionPointRec(GetMousePosition(), button);
