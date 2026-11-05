@@ -65,11 +65,11 @@ void loadResources(ResourceManager* rm) {
 			    name, variant + 1);
 			rm->enemyAttackTextures[type][variant] = LoadTexture(path);
 		}
-
-		// rm->jumpSound = LoadSound("resources/sfx/jump.wav");
-		// rm->backgroundMusic = LoadMusicStream("resources/musics/theme.ogg");
-		rm->loaded = 1;
 	}
+
+	// rm->jumpSound = LoadSound("resources/sfx/jump.wav");
+	// rm->backgroundMusic = LoadMusicStream("resources/musics/theme.ogg");
+	rm->loaded = 1;
 }
 
 void unloadResources(ResourceManager* rm) {
