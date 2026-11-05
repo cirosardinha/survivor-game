@@ -188,8 +188,20 @@ static Vector2 randomSpawnPosition(const Game* game) {
 
 	Vector2 pos = game->player.pos;
 
+	Vector2 vel = game->player.vel;
+	bool moving = vel.x != 0.0f || vel.y != 0.0f;
+	bool spawnAhead = moving && GetRandomValue(0, 99) < SPAWN_AHEAD_CHANCE;
+	float moveAngle = atan2f(vel.y, vel.x);
+
 	for (int tries = 0; tries < 30; tries++) {
 		float angle = GetRandomValue(0, 360) * DEG2RAD;
+
+		if (spawnAhead && tries < 15) {
+			float spread =
+			    GetRandomValue(-SPAWN_AHEAD_CONE, SPAWN_AHEAD_CONE) * DEG2RAD;
+			angle = moveAngle + spread;
+		}
+
 		float r = radius + GetRandomValue(0, 100);
 		pos.x = game->player.pos.x + cosf(angle) * r;
 		pos.y = game->player.pos.y + sinf(angle) * r;
