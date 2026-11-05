@@ -4,7 +4,7 @@
 #include "config.h"
 #include "raymath.h"
 
-#define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.5f)
+#define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.25f)
 
 static bool findAttackDirection(
     const Player* player, const Enemy* enemies, int count,

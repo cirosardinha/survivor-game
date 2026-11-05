@@ -31,11 +31,11 @@ void initPlayer(Player* player, ResourceManager* rm) {
 
 	player->health = 100;
 	player->maxHealth = 100;
-	player->speed = 250.0f;
+	player->speed = 210.0f;
 	player->score = 0;
 	player->xp = 0;
 	player->level = 1;
-	player->attackDamage = 12;
+	player->attackDamage = 16;
 	player->pickupRange = PICKUP_BASE_RANGE;
 	player->pendingLevelUps = 0;
 
@@ -45,7 +45,7 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
-	player->attackCooldown = 1.2f;
+	player->attackCooldown = 1.0f;
 	player->invincibleTimer = 0.0f;
 
 	setupPlayerAnimations(player);

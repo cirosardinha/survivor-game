@@ -5,7 +5,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
         {
             .name = "slime",
             .maxHealth = 40,
-            .speed = 90.0f,
+            .speed = 105.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
@@ -20,7 +20,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
         {
             .name = "orc",
             .maxHealth = 100,
-            .speed = 70.0f,
+            .speed = 85.0f,
             .size = 64.0f,
             .minDistance = 48.0f,
             .attackRange = 56.0f,
@@ -35,7 +35,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
         {
             .name = "plant",
             .maxHealth = 70,
-            .speed = 100.0f,
+            .speed = 115.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,
@@ -50,7 +50,7 @@ static const EnemyStats enemyStats[ENEMY_TYPE_COUNT] = {
         {
             .name = "vampire",
             .maxHealth = 30,
-            .speed = 160.0f,
+            .speed = 185.0f,
             .size = 64.0f,
             .minDistance = 40.0f,
             .attackRange = 48.0f,

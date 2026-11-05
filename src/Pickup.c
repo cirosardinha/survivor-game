@@ -4,7 +4,6 @@
 
 #define PICKUP_FRAME_SIZE 16.0f
 #define PICKUP_SIZE (PICKUP_FRAME_SIZE * SCALE)
-#define PICKUP_LIFE_TIME 10.0f
 #define PICKUP_FRAME_COUNT 4
 
 void initPickup(
@@ -12,17 +11,18 @@ void initPickup(
 	pickup->active = true;
 	pickup->type = type;
 	pickup->pos = pos;
-	pickup->lifetime = 0.0f;
 	pickup->texture = texture;
 	pickup->frame = 0;
 	pickup->frameTimer = 0.0f;
 
 	switch (type) {
 		case PICKUP_HEALTH:
-			pickup->value = 10;
+			pickup->value = GetRandomValue(10, 25);
+			pickup->lifetime = (float) GetRandomValue(10, 15);
 			break;
 		case PICKUP_XP:
-			pickup->value = 10;
+			pickup->value = 15;
+			pickup->lifetime = 15.0f;
 			break;
 
 		default:
@@ -39,8 +39,8 @@ void updatePickup(Pickup* pickup, Player* player, float delta) {
 		pickup->frameTimer -= 0.15f;
 		pickup->frame = (pickup->frame + 1) % PICKUP_FRAME_COUNT;
 	}
-	pickup->lifetime += delta;
-	if (pickup->lifetime > PICKUP_LIFE_TIME) {
+	pickup->lifetime -= delta;
+	if (pickup->lifetime <= 0.0f) {
 		pickup->active = false;
 		return;
 	}
