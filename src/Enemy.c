@@ -31,6 +31,8 @@ void initEnemy(
 	enemy->invincibleTimer = 0.0f;
 	enemy->avoidTimer = 0.0f;
 	enemy->avoidSide = 0;
+	enemy->stuckRef = pos;
+	enemy->stuckTimer = 0.0f;
 
 	enemy->stats = *stats;
 	enemy->stats.maxHealth =

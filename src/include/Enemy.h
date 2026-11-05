@@ -32,6 +32,8 @@ typedef struct Enemy {
 	float invincibleTimer;
 	float avoidTimer;
 	int avoidSide;
+	Vector2 stuckRef;
+	float stuckTimer;
 
 	EnemyStats stats;
 	EnemyType type;

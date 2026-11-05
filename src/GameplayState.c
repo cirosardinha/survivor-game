@@ -17,6 +17,7 @@ static void spawnEnemy(Game* game);
 static float currentSpawnInterval(const Game* game);
 static int maxUnlockedVariant(const Game* game);
 static Vector2 randomSpawnPosition(const Game* game);
+static void updateEnemyStuck(Game* game, Enemy* enemy);
 
 static Vector2 randomPickupPosition(const Game* game);
 static float randomPickupDelay(void);
@@ -79,6 +80,7 @@ void updateGameplay(Game* game) {
 		resolveEnemyObstacleCollision(enemy, previousEnemyPos);
 		resolveEnemyPlayerCollision(enemy, &game->player, game->delta);
 		updateEnemyAttack(enemy, &game->player, game->delta);
+		updateEnemyStuck(game, enemy);
 	}
 
 	for (int i = 0; i < MAX_GEMS; i++) {
@@ -217,6 +219,43 @@ static Vector2 randomSpawnPosition(const Game* game) {
 	pos.x = Clamp(pos.x, 0, worldWidth);
 	pos.y = Clamp(pos.y, 0, worldHeight);
 	return pos;
+}
+
+static void updateEnemyStuck(Game* game, Enemy* enemy) {
+	float half = enemy->stats.size / 2.0f;
+	Vector2 enemyCenter = {enemy->pos.x + half, enemy->pos.y + half};
+	Vector2 playerCenter = {
+	    game->player.pos.x + PLAYER_WIDTH / 2.0f,
+	    game->player.pos.y + PLAYER_HEIGHT / 2.0f,
+	};
+
+	float reach = enemy->stats.attackRange;
+	if (Vector2DistanceSqr(enemyCenter, playerCenter) <= reach * reach) {
+		enemy->stuckRef = enemy->pos;
+		enemy->stuckTimer = 0.0f;
+		return;
+	}
+
+	enemy->stuckTimer += game->delta;
+	if (enemy->stuckTimer < STUCK_CHECK_TIME) return;
+
+	bool moved = Vector2DistanceSqr(enemy->pos, enemy->stuckRef) >
+	             STUCK_MIN_MOVE * STUCK_MIN_MOVE;
+	enemy->stuckRef = enemy->pos;
+	enemy->stuckTimer = 0.0f;
+	if (moved) return;
+
+	float halfW = (float) WINDOW_WIDTH / (2.0f * game->camera.zoom);
+	float halfH = (float) WINDOW_HEIGHT / (2.0f * game->camera.zoom);
+	float dx = fabsf(enemyCenter.x - game->camera.target.x);
+	float dy = fabsf(enemyCenter.y - game->camera.target.y);
+	bool offscreen =
+	    dx > halfW + enemy->stats.size || dy > halfH + enemy->stats.size;
+	if (!offscreen) return;
+
+	enemy->pos = randomSpawnPosition(game);
+	enemy->stuckRef = enemy->pos;
+	enemy->avoidTimer = 0.0f;
 }
 
 static Vector2 randomPickupPosition(const Game* game) {
