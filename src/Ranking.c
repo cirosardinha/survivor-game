@@ -12,8 +12,13 @@ static void saveRanking(void);
 void loadRanking(void) {
 	memset(scores, 0, sizeof(scores));
 
+	if (!FileExists(RANKING_FILE)) {
+		return;
+	}
+
 	int size = 0;
 	unsigned char* data = LoadFileData(RANKING_FILE, &size);
+
 	if (data == NULL) return;
 
 	if (size == (int) sizeof(scores)) {
