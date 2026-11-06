@@ -17,8 +17,14 @@ void updateGameOver(Game* game) {
 
 	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 		if (CheckCollisionPointRec(mouse, gameOverMenuButton())) {
+			PlaySound(game->resourceManager->clickSound);
+			PlayMusicStream(game->resourceManager->backgroundMusic);
+
 			changeGameState(game, STATE_MENU);
 		} else if (CheckCollisionPointRec(mouse, gameOverResetButton())) {
+			PlaySound(game->resourceManager->clickSound);
+			PlayMusicStream(game->resourceManager->backgroundMusic);
+
 			resetGame(game);
 			changeGameState(game, STATE_GAMEPLAY);
 		}
@@ -52,7 +58,7 @@ void drawGameOver(Game* game) {
 }
 
 static void drawRankingList(Font font, int y) {
-	drawCenteredLine(font, "Melhores pontuacoes", y, 30, YELLOW);
+	drawCenteredLine(font, "Melhores pontuações", y, 30, YELLOW);
 
 	for (int i = 0; i < RANKING_SIZE; i++) {
 		int score = getRankingScore(i);

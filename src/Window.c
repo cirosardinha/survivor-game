@@ -15,7 +15,8 @@ Window* createWindow(void) {
 void runWindow(Window* window) {
 	InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE);
 	SetRandomSeed((unsigned int) time(NULL));
-	// InitAudioDevice();
+
+	InitAudioDevice();
 	SetTargetFPS(TARGET_FPS);
 	SetExitKey(KEY_NULL);
 
@@ -31,7 +32,7 @@ void runWindow(Window* window) {
 	}
 
 	destroyGame(window->game);
-	// CloseAudioDevice();
+	CloseAudioDevice();
 	CloseWindow();
 }
 

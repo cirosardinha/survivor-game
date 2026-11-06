@@ -114,6 +114,8 @@ void damagePlayer(Player* player, int amount) {
 
 	player->health -= amount;
 	player->invincibleTimer = PLAYER_INVINCIBLE_TIME;
+
+	PlaySound(player->resources->playerHurtSound);
 }
 
 static bool isPlayerMoving(const Player* player) {

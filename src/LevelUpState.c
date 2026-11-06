@@ -15,6 +15,7 @@ static void drawCardText(
     Color color);
 
 void enterLevelUp(Game* game) {
+	PlaySound(game->resourceManager->levelUpSound);
 	rollUpgrades(game->upgradeChoices, UPGRADE_CHOICES);
 	changeGameState(game, STATE_LEVELUP);
 }
@@ -36,6 +37,7 @@ void updateLevelUp(Game* game) {
 
 	if (chosen < 0) return;
 
+	PlaySound(game->resourceManager->clickSound);
 	applyUpgrade(&game->player, game->upgradeChoices[chosen]);
 	game->player.pendingLevelUps--;
 
@@ -56,7 +58,7 @@ void drawLevelUp(Game* game) {
 
 	drawCenteredLine(
 	    font, TextFormat("NIVEL %d!", game->player.level), 80, 60, YELLOW);
-	drawCenteredLine(font, "Escolha um bonus", 160, 30, WHITE);
+	drawCenteredLine(font, "Escolha um bônus", 160, 30, WHITE);
 
 	for (int i = 0; i < UPGRADE_CHOICES; i++) {
 		Rectangle card = cardRect(i);
@@ -77,7 +79,7 @@ void drawLevelUp(Game* game) {
 	}
 
 	drawCenteredLine(
-	    font, "Clique no bonus ou aperte 1, 2 ou 3", 520, 24, WHITE);
+	    font, "Clique no bônus ou aperte 1, 2 ou 3", 520, 24, WHITE);
 }
 
 static Rectangle cardRect(int index) {

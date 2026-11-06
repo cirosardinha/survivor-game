@@ -58,9 +58,14 @@ void updatePlayerAttack(
 				player->direction = attackDirection;
 				startPlayerAttack(player);
 				player->attackTimer = 0.0f;
+				PlaySound(player->resources->playerAttackSound);
+
 				attacked = true;
 			}
-			damageEnemy(enemy, player->attackDamage);
+			if (enemy->invincibleTimer <= 0.0f) {
+				damageEnemy(enemy, player->attackDamage);
+				if (enemy->active) PlaySound(enemy->resources->enemyHurtSound);
+			}
 		}
 	}
 }

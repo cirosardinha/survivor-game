@@ -101,7 +101,7 @@ void drawPlayerLevel(const Player* player, const ResourceManager* rm) {
 	    rm->xpFillTexture, src, dest, (Vector2){0.0f, 0.0f}, 0.0f, WHITE);
 
 	DrawTextEx(
-	    rm->uiFont, TextFormat("Nivel %d", player->level),
+	    rm->uiFont, TextFormat("Nível %d", player->level),
 	    (Vector2){x, y + 24 * UI_SCALE + 6}, 30, 2, WHITE);
 }
 void drawButton(Font font, Rectangle button, const char* label) {

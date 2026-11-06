@@ -19,10 +19,10 @@ typedef struct UpgradeInfo {
 
 // Mantenha as descrições iguais aos valores das constantes acima.
 static const UpgradeInfo upgradeInfo[UPGRADE_COUNT] = {
-    [UPGRADE_MAX_HEALTH] = {"Vitalidade", "+20 de vida\nmaxima"},
-    [UPGRADE_DAMAGE] = {"Forca", "+4 de dano"},
-    [UPGRADE_ATTACK_SPEED] = {"Agilidade", "Ataque 10%\nmais rapido"},
-    [UPGRADE_MOVE_SPEED] = {"Velocidade", "Movimento 10%\nmais rapido"},
+    [UPGRADE_MAX_HEALTH] = {"Vitalidade", "+20 de vida\nmáxima"},
+    [UPGRADE_DAMAGE] = {"Força", "+4 de dano"},
+    [UPGRADE_ATTACK_SPEED] = {"Agilidade", "Ataque 10%\nmais rápido"},
+    [UPGRADE_MOVE_SPEED] = {"Velocidade", "Movimento 10%\nmais rápido"},
     [UPGRADE_PICKUP_RANGE] = {"Coleta", "Alcance de coleta\n30% maior"},
     [UPGRADE_HEAL] = {"Cura", "Recupera 40\nde vida"},
 };

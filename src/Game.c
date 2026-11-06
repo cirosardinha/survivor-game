@@ -22,6 +22,7 @@ Game* createGame(void) {
 	Game* game = calloc(1, sizeof(Game));
 	if (game == NULL) exit(EXIT_FAILURE);
 	game->currentState = STATE_MENU;
+
 	game->delta = 0.0f;
 	game->resourceManager = createResourceManager();
 	loadResources(game->resourceManager);
@@ -29,8 +30,11 @@ Game* createGame(void) {
 
 	initMap();
 	initPlayer(&game->player, game->resourceManager);
+	PlayMusicStream(game->resourceManager->backgroundMusic);
+
 	game->spawnTimer = FIRST_SPAWN_DELAY;
 	game->gameTimer = 0.0f;
+	game->startTimer = 0.0f;
 
 	game->pickup.active = false;
 	game->pickupSpawnTimer =
@@ -45,7 +49,9 @@ Game* createGame(void) {
 }
 
 void updateGame(Game* game) {
+	UpdateMusicStream(game->resourceManager->backgroundMusic);
 	game->delta = GetFrameTime();
+
 	if (game->delta > MAX_DELTA) game->delta = MAX_DELTA;
 	stateTable[game->currentState].update(game);
 }
@@ -72,4 +78,5 @@ void resetGame(Game* game) {
 	game->pickupSpawnTimer =
 	    (float) GetRandomValue(PICKUP_SPAWN_MIN, PICKUP_SPAWN_MAX);
 	game->gameTimer = 0.0f;
+	game->startTimer = 0.0f;
 }

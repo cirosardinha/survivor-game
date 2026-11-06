@@ -81,6 +81,22 @@ void updateEnemy(Enemy* enemy, struct Player* player, float delta) {
 }
 
 void startEnemyAttack(Enemy* enemy) {
+	switch (enemy->type) {
+		case ENEMY_TYPE_ORC:
+			PlaySound(enemy->resources->orcAttackSound);
+			break;
+		case ENEMY_TYPE_VAMPIRE:
+			PlaySound(enemy->resources->vampireAttackSound);
+			break;
+		case ENEMY_TYPE_PLANT:
+			PlaySound(enemy->resources->plantAttackSound);
+			break;
+		case ENEMY_TYPE_SLIME:
+			PlaySound(enemy->resources->slimeAttackSound);
+			break;
+		default:
+			break;
+	}
 	setAnimation(&enemy->animState, ENEMY_ANIM_ATTACK);
 }
 

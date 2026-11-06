@@ -59,11 +59,13 @@ void updatePickup(Pickup* pickup, Player* player, float delta) {
 	switch (pickup->type) {
 		case PICKUP_HEALTH:
 			if (player->health >= player->maxHealth) return;
+			PlaySound(player->resources->healthPickupSound);
 			healPlayer(player, pickup->value);
 			pickup->active = false;
 			break;
 
 		case PICKUP_XP:
+			PlaySound(player->resources->xpPickupSound);
 			addPlayerXp(player, pickup->value);
 			pickup->active = false;
 			break;

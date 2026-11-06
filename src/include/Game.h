@@ -32,6 +32,7 @@ typedef struct Game {
 	float pickupSpawnTimer;
 
 	float gameTimer;
+	float startTimer;
 
 	Pickup pickup;
 	Pickup gems[MAX_GEMS];

@@ -3,6 +3,8 @@
 
 #include "ResourceManager.h"
 
+#define SFX_VOLUME 0.5f
+
 ResourceManager* createResourceManager(void) {
 	ResourceManager* rm = malloc(sizeof(ResourceManager));
 	if (rm == NULL) exit(EXIT_FAILURE);
@@ -67,8 +69,40 @@ void loadResources(ResourceManager* rm) {
 		}
 	}
 
-	// rm->jumpSound = LoadSound("resources/sfx/jump.wav");
-	// rm->backgroundMusic = LoadMusicStream("resources/musics/theme.ogg");
+	rm->startSound = LoadSound("resources/sfx/start.wav");
+	rm->clickSound = LoadSound("resources/sfx/ui_click.wav");
+	rm->playerAttackSound = LoadSound("resources/sfx/player_attack.wav");
+	rm->healthPickupSound = LoadSound("resources/sfx/health_pickup.wav");
+	rm->xpPickupSound = LoadSound("resources/sfx/xp_pickup.wav");
+	rm->levelUpSound = LoadSound("resources/sfx/level_up.wav");
+	rm->playerHurtSound = LoadSound("resources/sfx/player_hurt.wav");
+	rm->enemyHurtSound = LoadSound("resources/sfx/enemy_hurt.wav");
+	rm->enemyDeathSound = LoadSound("resources/sfx/enemy_death.wav");
+	rm->orcAttackSound = LoadSound("resources/sfx/orc_attack.wav");
+	rm->plantAttackSound = LoadSound("resources/sfx/plant_attack.wav");
+	rm->slimeAttackSound = LoadSound("resources/sfx/slime_attack.wav");
+	rm->vampireAttackSound = LoadSound("resources/sfx/vampire_attack.wav");
+	rm->gameOverSound = LoadSound("resources/sfx/game_over.wav");
+
+	rm->backgroundMusic = LoadMusicStream("resources/musics/bg_music.ogg");
+
+	SetMusicVolume(rm->backgroundMusic, 0.2f);
+
+	SetSoundVolume(rm->startSound, SFX_VOLUME);
+	SetSoundVolume(rm->clickSound, SFX_VOLUME);
+	SetSoundVolume(rm->playerAttackSound, SFX_VOLUME);
+	SetSoundVolume(rm->playerHurtSound, SFX_VOLUME);
+	SetSoundVolume(rm->enemyHurtSound, SFX_VOLUME);
+	SetSoundVolume(rm->enemyDeathSound, SFX_VOLUME);
+	SetSoundVolume(rm->healthPickupSound, SFX_VOLUME);
+	SetSoundVolume(rm->xpPickupSound, SFX_VOLUME);
+	SetSoundVolume(rm->levelUpSound, SFX_VOLUME);
+	SetSoundVolume(rm->orcAttackSound, SFX_VOLUME);
+	SetSoundVolume(rm->plantAttackSound, SFX_VOLUME);
+	SetSoundVolume(rm->slimeAttackSound, SFX_VOLUME);
+	SetSoundVolume(rm->vampireAttackSound, SFX_VOLUME);
+	SetSoundVolume(rm->gameOverSound, SFX_VOLUME);
+
 	rm->loaded = 1;
 }
 
@@ -103,8 +137,22 @@ void unloadResources(ResourceManager* rm) {
 			UnloadTexture(rm->enemyAttackTextures[type][variant]);
 		}
 	}
-	// UnloadSound(rm->jumpSound);
-	// UnloadMusicStream(rm->backgroundMusic);
+	UnloadMusicStream(rm->backgroundMusic);
+
+	UnloadSound(rm->startSound);
+	UnloadSound(rm->clickSound);
+	UnloadSound(rm->playerAttackSound);
+	UnloadSound(rm->playerHurtSound);
+	UnloadSound(rm->enemyHurtSound);
+	UnloadSound(rm->enemyDeathSound);
+	UnloadSound(rm->healthPickupSound);
+	UnloadSound(rm->xpPickupSound);
+	UnloadSound(rm->levelUpSound);
+	UnloadSound(rm->orcAttackSound);
+	UnloadSound(rm->vampireAttackSound);
+	UnloadSound(rm->plantAttackSound);
+	UnloadSound(rm->slimeAttackSound);
+	UnloadSound(rm->gameOverSound);
 
 	rm->loaded = 0;
 }

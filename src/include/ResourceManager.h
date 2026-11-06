@@ -27,8 +27,23 @@ typedef struct ResourceManager {
 	Texture2D xpGemTexture;
 	Texture2D enemyWalkTextures[ENEMY_TYPE_COUNT][ENEMY_VARIANTS];
 	Texture2D enemyAttackTextures[ENEMY_TYPE_COUNT][ENEMY_VARIANTS];
-	// Sound jumpSound;
-	// Music backgroundMusic;
+
+	Music backgroundMusic;
+
+	Sound startSound;
+	Sound clickSound;
+	Sound playerAttackSound;
+	Sound playerHurtSound;
+	Sound enemyHurtSound;
+	Sound enemyDeathSound;
+	Sound orcAttackSound;
+	Sound vampireAttackSound;
+	Sound plantAttackSound;
+	Sound slimeAttackSound;
+	Sound healthPickupSound;
+	Sound xpPickupSound;
+	Sound levelUpSound;
+	Sound gameOverSound;
 	int loaded;
 } ResourceManager;
 

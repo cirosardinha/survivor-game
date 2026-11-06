@@ -26,6 +26,8 @@ static void spawnGem(Game* game, Vector2 pos);
 void updateGameplay(Game* game) {
 	game->gameTimer += game->delta;
 	if (game->player.health <= 0) {
+		StopMusicStream(game->resourceManager->backgroundMusic);
+		PlaySound(game->resourceManager->gameOverSound);
 		enterGameOver(game);
 		return;
 	}
@@ -64,6 +66,7 @@ void updateGameplay(Game* game) {
 		Enemy* enemy = &game->enemies[i];
 
 		if (enemy->justDied) {
+			PlaySound(game->resourceManager->enemyDeathSound);
 			enemy->justDied = false;
 			Vector2 center = {
 			    enemy->pos.x + enemy->stats.size / 2.0f,

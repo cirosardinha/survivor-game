@@ -11,9 +11,21 @@ static void drawHelpRow(
     const char* text);
 
 void updateMenu(Game* game) {
-	if (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-		changeGameState(game, STATE_GAMEPLAY);
-		resetGame(game);
+	if (game->startTimer == 0.0f &&
+	    (IsKeyPressed(KEY_ENTER) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT))) {
+		PlaySound(game->resourceManager->startSound);
+		game->startTimer = 0.7f;
+	}
+
+	if (game->startTimer > 0.0f) {
+		game->startTimer -= GetFrameTime();
+
+		if (game->startTimer <= 0.0f) {
+			game->startTimer = 0.0f;
+
+			resetGame(game);
+			changeGameState(game, STATE_GAMEPLAY);
+		}
 	}
 }
 
@@ -34,13 +46,13 @@ void drawMenu(Game* game) {
 
 	drawHelpRow(font, panel, 258, "WASD", NULL, "Mover");
 	drawHelpRow(font, panel, 312, "AUTO", NULL, "Ataque automático");
-	drawHelpRow(font, panel, 366, NULL, &rm->xpGemTexture, "Gemas dao XP");
+	drawHelpRow(font, panel, 366, NULL, &rm->xpGemTexture, "Gemas dão XP");
 	drawHelpRow(
 	    font, panel, 420, NULL, &rm->healthPickupTexture,
 	    "Corações curam a vida");
 
 	if (fmodf((float) GetTime(), 1.2f) < 0.8f) {
-		drawCenteredLine(font, "Clique ou ENTER para comecar", 540, 30, WHITE);
+		drawCenteredLine(font, "Clique ou ENTER para começar", 540, 30, WHITE);
 	}
 
 	int best = getRankingScore(0);
