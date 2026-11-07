@@ -78,7 +78,6 @@ void loadResources(ResourceManager* rm) {
 	rm->levelUpSound = LoadSound("resources/sfx/level_up.wav");
 	rm->playerHurtSound = LoadSound("resources/sfx/player_hurt.wav");
 	rm->enemyHurtSound = LoadSound("resources/sfx/enemy_hurt.wav");
-	rm->enemyDeathSound = LoadSound("resources/sfx/enemy_death.wav");
 	rm->orcAttackSound = LoadSound("resources/sfx/orc_attack.wav");
 	rm->plantAttackSound = LoadSound("resources/sfx/plant_attack.wav");
 	rm->slimeAttackSound = LoadSound("resources/sfx/slime_attack.wav");
@@ -87,17 +86,16 @@ void loadResources(ResourceManager* rm) {
 
 	rm->backgroundMusic = LoadMusicStream("resources/musics/bg_music.ogg");
 
-	SetMusicVolume(rm->backgroundMusic, 0.2f);
+	SetMusicVolume(rm->backgroundMusic, 0.4f);
 
 	SetSoundVolume(rm->startSound, SFX_VOLUME);
 	SetSoundVolume(rm->clickSound, SFX_VOLUME);
 	SetSoundVolume(rm->playerAttackSound, SFX_VOLUME);
-	SetSoundVolume(rm->playerHurtSound, SFX_VOLUME);
+	SetSoundVolume(rm->playerHurtSound, SFX_VOLUME * 1.25f);
 	SetSoundVolume(rm->enemyHurtSound, SFX_VOLUME);
-	SetSoundVolume(rm->enemyDeathSound, SFX_VOLUME);
 	SetSoundVolume(rm->healthPickupSound, SFX_VOLUME);
 	SetSoundVolume(rm->xpPickupSound, SFX_VOLUME);
-	SetSoundVolume(rm->levelUpSound, SFX_VOLUME);
+	SetSoundVolume(rm->levelUpSound, SFX_VOLUME * 0.80);
 	SetSoundVolume(rm->orcAttackSound, SFX_VOLUME);
 	SetSoundVolume(rm->plantAttackSound, SFX_VOLUME);
 	SetSoundVolume(rm->slimeAttackSound, SFX_VOLUME);
@@ -146,7 +144,6 @@ void unloadResources(ResourceManager* rm) {
 	UnloadSound(rm->playerAttackSound);
 	UnloadSound(rm->playerHurtSound);
 	UnloadSound(rm->enemyHurtSound);
-	UnloadSound(rm->enemyDeathSound);
 	UnloadSound(rm->healthPickupSound);
 	UnloadSound(rm->xpPickupSound);
 	UnloadSound(rm->levelUpSound);

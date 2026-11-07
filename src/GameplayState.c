@@ -67,7 +67,6 @@ void updateGameplay(Game* game) {
 		Enemy* enemy = &game->enemies[i];
 
 		if (enemy->justDied) {
-			PlaySound(game->resourceManager->enemyDeathSound);
 			enemy->justDied = false;
 			Vector2 center = {
 			    enemy->pos.x + enemy->stats.size / 2.0f,

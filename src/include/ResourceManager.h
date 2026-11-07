@@ -36,7 +36,6 @@ typedef struct ResourceManager {
 	Sound playerAttackSound;
 	Sound playerHurtSound;
 	Sound enemyHurtSound;
-	Sound enemyDeathSound;
 	Sound orcAttackSound;
 	Sound vampireAttackSound;
 	Sound plantAttackSound;
