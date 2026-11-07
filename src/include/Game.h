@@ -10,7 +10,7 @@
 #include <stdbool.h>
 
 #define MAX_ENEMIES 32
-#define MAX_GEMS 32
+#define MAX_GEMS 64
 
 typedef enum GameState {
 	STATE_MENU,

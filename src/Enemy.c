@@ -1,4 +1,5 @@
 #include "Enemy.h"
+#include "Combat.h"
 #include "Map.h"
 #include "Player.h"
 #include "config.h"
@@ -6,7 +7,7 @@
 
 #define ENEMY_BLINK_INTERVAL 0.1f
 #define ENEMY_INVINCIBLE_TIME 0.3f
-#define VARIANT_HEALTH_BONUS 0.5f
+#define VARIANT_HEALTH_BONUS 0.4f
 #define VARIANT_DAMAGE_BONUS 0.25f
 #define AVOID_LOOKAHEAD 60.0f
 #define AVOID_MEMORY 0.5f
@@ -28,6 +29,7 @@ void initEnemy(
 	enemy->vel = (Vector2){0.0f, 0.0f};
 
 	enemy->attackTimer = 0.0f;
+	enemy->windupTimer = 0.0f;
 	enemy->invincibleTimer = 0.0f;
 	enemy->avoidTimer = 0.0f;
 	enemy->avoidSide = 0;
@@ -35,6 +37,8 @@ void initEnemy(
 	enemy->stuckTimer = 0.0f;
 
 	enemy->stats = *stats;
+	enemy->stats.speed =
+	    stats->speed * (0.85f + GetRandomValue(0, 30) / 100.0f);
 	enemy->stats.maxHealth =
 	    (int) (stats->maxHealth * (1.0f + variant * VARIANT_HEALTH_BONUS));
 	enemy->stats.attackDamage =
@@ -117,6 +121,33 @@ void drawEnemy(Enemy* enemy) {
 	    enemy->pos.y + enemy->stats.size / 2.0f - SPRITE_SIZE / 2.0f,
 	};
 
+	if (enemy->windupTimer > 0.0f) {
+		Color warnColor = enemy->stats.areaAttack ? ORANGE : RED;
+		float progress = 1.0f - enemy->windupTimer / ATTACK_WINDUP_TIME;
+		float radius = enemy->stats.attackRange * ATTACK_HIT_TOLERANCE;
+		Vector2 center = {
+		    enemy->pos.x + enemy->stats.size / 2.0f,
+		    enemy->pos.y + enemy->stats.size / 2.0f,
+		};
+
+		if (enemy->stats.areaAttack) {
+			DrawCircleV(center, radius * progress, Fade(warnColor, 0.2f));
+			DrawCircleLines(
+			    (int) center.x, (int) center.y, radius, Fade(warnColor, 0.6f));
+		} else {
+			Vector2 facing = getEnemyFacing(enemy);
+			float angle = atan2f(facing.y, facing.x) * RAD2DEG;
+			float start = angle - ATTACK_CONE_ANGLE;
+			float end = angle + ATTACK_CONE_ANGLE;
+
+			DrawCircleSector(
+			    center, radius * progress, start, end, 16,
+			    Fade(warnColor, 0.2f));
+			DrawCircleSectorLines(
+			    center, radius, start, end, 16, Fade(warnColor, 0.6f));
+		}
+	}
+
 	drawAnimation(
 	    &enemy->anims[enemy->animState.current], &enemy->animState, spritePos,
 	    enemy->direction, tint);
@@ -138,20 +169,18 @@ static void followPlayer(Enemy* enemy, Player* player, float delta) {
 	Vector2 direction = Vector2Subtract(playerCenter, enemyCenter);
 	float length = Vector2Length(direction);
 
-	if (length > 1.0f) {
+	if (direction.x != 0.0f || direction.y != 0.0f) {
+		if (fabsf(direction.x) > fabsf(direction.y)) {
+			enemy->direction = direction.x < 0.0f ? ENEMY_LEFT : ENEMY_RIGHT;
+		} else {
+			enemy->direction = direction.y < 0.0f ? ENEMY_UP : ENEMY_DOWN;
+		}
+	}
+	if (length > enemy->stats.minDistance) {
 		direction.x /= length;
 		direction.y /= length;
 
 		direction = avoidObstacles(enemy, direction, delta);
-
-		if (direction.x != 0.0f || direction.y != 0.0f) {
-			if (fabsf(direction.x) > fabsf(direction.y)) {
-				enemy->direction =
-				    direction.x < 0.0f ? ENEMY_LEFT : ENEMY_RIGHT;
-			} else {
-				enemy->direction = direction.y < 0.0f ? ENEMY_UP : ENEMY_DOWN;
-			}
-		}
 
 		enemy->vel.x = direction.x * enemy->stats.speed;
 		enemy->vel.y = direction.y * enemy->stats.speed;
@@ -247,4 +276,13 @@ void damageEnemy(Enemy* enemy, int amount) {
 		enemy->health = 0;
 		enemy->justDied = true;
 	}
+}
+Vector2 getEnemyFacing(const Enemy* enemy) {
+	static const Vector2 facing[ENEMY_DIRECTION_COUNT] = {
+	    [ENEMY_DOWN] = {0.0f, 1.0f},
+	    [ENEMY_UP] = {0.0f, -1.0f},
+	    [ENEMY_LEFT] = {-1.0f, 0.0f},
+	    [ENEMY_RIGHT] = {1.0f, 0.0f},
+	};
+	return facing[enemy->direction];
 }

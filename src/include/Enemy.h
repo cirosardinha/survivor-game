@@ -29,6 +29,7 @@ typedef struct Enemy {
 
 	int health;
 	float attackTimer;
+	float windupTimer;
 	float invincibleTimer;
 	float avoidTimer;
 	int avoidSide;
@@ -52,3 +53,4 @@ void updateEnemy(Enemy* enemy, Player* player, float delta);
 void drawEnemy(Enemy* enemy);
 void startEnemyAttack(Enemy* enemy);
 void damageEnemy(Enemy* enemy, int amount);
+Vector2 getEnemyFacing(const Enemy* enemy);

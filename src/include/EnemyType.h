@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 #define ENEMY_VARIANTS 3
 
 typedef enum EnemyType {
@@ -20,6 +22,7 @@ typedef struct EnemyStats {
 	float attackRange;
 	int attackDamage;
 	float attackCooldown;
+	bool areaAttack;
 
 	int scoreValue;
 

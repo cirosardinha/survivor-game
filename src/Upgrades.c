@@ -9,7 +9,7 @@
 #define UPGRADE_PICKUP_FACTOR 1.3f
 #define UPGRADE_HEAL_AMOUNT 40
 
-#define MIN_ATTACK_COOLDOWN 0.4f
+#define MIN_ATTACK_COOLDOWN 0.5f
 #define MAX_MOVE_SPEED 400.0f
 
 typedef struct UpgradeInfo {

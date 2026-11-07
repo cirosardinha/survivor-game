@@ -2,7 +2,7 @@
 #include "config.h"
 
 #define PLAYER_BLINK_INTERVAL 0.1f
-#define PLAYER_INVINCIBLE_TIME 0.5f
+#define PLAYER_INVINCIBLE_TIME 0.8f
 
 #define PLAYER_IDLE_FRAME_TIME 0.12f
 #define PLAYER_WALK_FRAME_TIME 0.10F
@@ -31,11 +31,11 @@ void initPlayer(Player* player, ResourceManager* rm) {
 
 	player->health = 100;
 	player->maxHealth = 100;
-	player->speed = 210.0f;
+	player->speed = 200.0f;
 	player->score = 0;
 	player->xp = 0;
 	player->level = 1;
-	player->attackDamage = 16;
+	player->attackDamage = 20;
 	player->pickupRange = PICKUP_BASE_RANGE;
 	player->pendingLevelUps = 0;
 
@@ -45,7 +45,7 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	player->direction = PLAYER_DOWN;
 
 	player->attackTimer = 0.0f;
-	player->attackCooldown = 1.0f;
+	player->attackCooldown = 0.7f;
 	player->invincibleTimer = 0.0f;
 
 	setupPlayerAnimations(player);
@@ -75,8 +75,12 @@ void updatePlayer(Player* player, float delta) {
 	updateAnimation(
 	    &player->anims[player->animState.current], &player->animState, delta);
 
-	player->pos.x += player->vel.x * player->speed * delta;
-	player->pos.y += player->vel.y * player->speed * delta;
+	float speed = player->speed;
+
+	if (player->state == PLAYER_ATTACKING) speed *= 0.80;
+
+	player->pos.x += player->vel.x * speed * delta;
+	player->pos.y += player->vel.y * speed * delta;
 
 	clampPlayerToWorld(player);
 }

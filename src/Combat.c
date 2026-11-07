@@ -4,11 +4,15 @@
 #include "config.h"
 #include "raymath.h"
 
-#define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.25f)
+#define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.1f)
+#define ATTACK_REACH 16.0f
 
 static bool findAttackDirection(
     const Player* player, const Enemy* enemies, int count,
     PlayerDirection* outDirection);
+static bool isPlayerInFront(
+    const Enemy* enemy, Vector2 enemyCenter, Vector2 playerCenter,
+    float distance);
 
 static const Vector2 playerAttackDir[4] = {
     {0, 1},
@@ -33,8 +37,8 @@ void updatePlayerAttack(
 	Vector2 dir = playerAttackDir[attackDirection];
 
 	Rectangle playerAttackArea = {
-	    player->pos.x + dir.x * playerWidth,
-	    player->pos.y + dir.y * playerHeight,
+	    player->pos.x + dir.x * ATTACK_REACH,
+	    player->pos.y + dir.y * ATTACK_REACH,
 	    playerWidth,
 	    playerHeight,
 	};
@@ -69,10 +73,8 @@ void updatePlayerAttack(
 		}
 	}
 }
-
 void updateEnemyAttack(Enemy* enemy, Player* player, float delta) {
 	if (!enemy->active) return;
-	if (player->invincibleTimer > 0.0f) return;
 
 	Vector2 enemyCenter = {
 	    enemy->pos.x + enemy->stats.size / 2.0f,
@@ -84,12 +86,31 @@ void updateEnemyAttack(Enemy* enemy, Player* player, float delta) {
 
 	float distance = Vector2Distance(enemyCenter, playerCenter);
 
+	if (enemy->windupTimer > 0.0f) {
+		enemy->windupTimer -= delta;
+
+		if (enemy->windupTimer <= 0.0f) {
+			enemy->windupTimer = 0.0f;
+
+			float reach = enemy->stats.attackRange * ATTACK_HIT_TOLERANCE;
+
+			if (distance <= reach &&
+			    (enemy->stats.areaAttack ||
+			     isPlayerInFront(enemy, enemyCenter, playerCenter, distance))) {
+				damagePlayer(player, enemy->stats.attackDamage);
+			}
+		}
+		return;
+	}
+
+	if (player->invincibleTimer > 0.0f) return;
+
 	enemy->attackTimer += delta;
 
 	if (distance <= enemy->stats.attackRange &&
 	    enemy->attackTimer >= enemy->stats.attackCooldown) {
 		startEnemyAttack(enemy);
-		damagePlayer(player, enemy->stats.attackDamage);
+		enemy->windupTimer = ATTACK_WINDUP_TIME;
 
 		enemy->attackTimer = 0.0f;
 	}
@@ -131,4 +152,14 @@ static bool findAttackDirection(
 	}
 
 	return true;
+}
+
+static bool isPlayerInFront(
+    const Enemy* enemy, Vector2 enemyCenter, Vector2 playerCenter,
+    float distance) {
+	Vector2 facing = getEnemyFacing(enemy);
+	Vector2 toPlayer = Vector2Subtract(playerCenter, enemyCenter);
+	float minDot = distance * cosf(ATTACK_CONE_ANGLE * DEG2RAD);
+
+	return Vector2DotProduct(facing, toPlayer) >= minDot;
 }

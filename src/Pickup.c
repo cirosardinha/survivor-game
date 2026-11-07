@@ -21,8 +21,8 @@ void initPickup(
 			pickup->lifetime = (float) GetRandomValue(10, 15);
 			break;
 		case PICKUP_XP:
-			pickup->value = 15;
-			pickup->lifetime = 15.0f;
+			pickup->value = GetRandomValue(15, 20);
+			pickup->lifetime = GetRandomValue(30, 40);
 			break;
 
 		default:
