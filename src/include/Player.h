@@ -40,6 +40,8 @@ typedef struct Player {
 	int attackDamage;
 	float pickupRange;
 	int pendingLevelUps;
+	bool hasOrb;
+	float orbAngle;
 
 	float invincibleTimer;
 	float attackTimer;

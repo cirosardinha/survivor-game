@@ -24,6 +24,7 @@ typedef struct ResourceManager {
 	Texture2D grassVarTexture;
 	Texture2D rockTexture;
 	Texture2D healthPickupTexture;
+	Texture2D orbUpgradeTexture;
 	Texture2D xpGemTexture;
 	Texture2D enemyWalkTextures[ENEMY_TYPE_COUNT][ENEMY_VARIANTS];
 	Texture2D enemyAttackTextures[ENEMY_TYPE_COUNT][ENEMY_VARIANTS];

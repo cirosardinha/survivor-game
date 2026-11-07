@@ -25,6 +25,7 @@ static const UpgradeInfo upgradeInfo[UPGRADE_COUNT] = {
     [UPGRADE_MOVE_SPEED] = {"Velocidade", "Movimento 10%\nmais rápido"},
     [UPGRADE_PICKUP_RANGE] = {"Coleta", "Alcance de coleta\n30% maior"},
     [UPGRADE_HEAL] = {"Cura", "Recupera 40\nde vida"},
+    [UPGRADE_ORB] = {"Orbe", "Um orbe gira\nem volta de você"},
 };
 
 const char* getUpgradeName(UpgradeType type) {
@@ -68,12 +69,16 @@ void applyUpgrade(Player* player, UpgradeType type) {
 			healPlayer(player, UPGRADE_HEAL_AMOUNT);
 			break;
 
+		case UPGRADE_ORB:
+			player->hasOrb = true;
+			break;
+
 		default:
 			break;
 	}
 }
 
-void rollUpgrades(UpgradeType* choices, int count) {
+void rollUpgrades(const Player* player, UpgradeType* choices, int count) {
 	for (int i = 0; i < count; i++) {
 		bool repeated;
 
@@ -84,6 +89,7 @@ void rollUpgrades(UpgradeType* choices, int count) {
 			for (int j = 0; j < i; j++) {
 				if (choices[j] == choices[i]) repeated = true;
 			}
+			if (choices[i] == UPGRADE_ORB && player->hasOrb) repeated = true;
 		} while (repeated);
 	}
 }

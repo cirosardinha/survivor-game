@@ -6,6 +6,10 @@
 
 #define ATTACK_DETECT_RANGE (MAP_TILE_SIZE * 1.1f)
 #define ATTACK_REACH 16.0f
+#define ORB_DISTANCE 70.0f
+#define ORB_RADIUS 14.0f
+#define ORB_SPEED 4.0f
+#define ORB_DAMAGE 10
 
 static bool findAttackDirection(
     const Player* player, const Enemy* enemies, int count,
@@ -162,4 +166,55 @@ static bool isPlayerInFront(
 	float minDot = distance * cosf(ATTACK_CONE_ANGLE * DEG2RAD);
 
 	return Vector2DotProduct(facing, toPlayer) >= minDot;
+}
+
+static Vector2 getOrbPosition(const Player* player) {
+	return (Vector2){
+	    player->pos.x + PLAYER_WIDTH / 2.0f +
+	        cosf(player->orbAngle) * ORB_DISTANCE,
+	    player->pos.y + PLAYER_HEIGHT / 2.0f +
+	        sinf(player->orbAngle) * ORB_DISTANCE,
+	};
+}
+
+void updateOrb(Player* player, Enemy* enemies, int count, float delta) {
+	if (!player->hasOrb) return;
+
+	player->orbAngle += ORB_SPEED * delta;
+
+	Vector2 orbPos = getOrbPosition(player);
+
+	for (int i = 0; i < count; i++) {
+		Enemy* enemy = &enemies[i];
+		if (!enemy->active) continue;
+
+		Rectangle hitBox = {
+		    enemy->pos.x,
+		    enemy->pos.y,
+		    enemy->stats.size,
+		    enemy->stats.size,
+		};
+
+		if (CheckCollisionCircleRec(orbPos, ORB_RADIUS, hitBox)) {
+			damageEnemy(enemy, ORB_DAMAGE);
+		}
+	}
+}
+
+void drawOrb(const Player* player) {
+	if (!player->hasOrb) return;
+
+	Vector2 pos = getOrbPosition(player);
+
+	Rectangle source = {
+	    0, 0, (float) player->resources->orbUpgradeTexture.width,
+	    (float) player->resources->orbUpgradeTexture.height};
+
+	Rectangle dest = {pos.x, pos.y, ORB_RADIUS * 2, ORB_RADIUS * 2};
+
+	Vector2 origin = {ORB_RADIUS, ORB_RADIUS};
+
+	DrawTexturePro(
+	    player->resources->orbUpgradeTexture, source, dest, origin, 0.0f,
+	    WHITE);
 }

@@ -9,3 +9,5 @@
 
 void updatePlayerAttack(Player* player, Enemy* enemies, int count, float delta);
 void updateEnemyAttack(Enemy* enemy, Player* player, float delta);
+void updateOrb(Player* player, Enemy* enemies, int count, float delta);
+void drawOrb(const Player* player);

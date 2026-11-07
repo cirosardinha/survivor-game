@@ -38,6 +38,8 @@ void initPlayer(Player* player, ResourceManager* rm) {
 	player->attackDamage = 20;
 	player->pickupRange = PICKUP_BASE_RANGE;
 	player->pendingLevelUps = 0;
+	player->hasOrb = false;
+	player->orbAngle = 0.0f;
 
 	player->resources = rm;
 
@@ -154,6 +156,10 @@ void healPlayer(Player* player, int amount) {
 
 void addPlayerXp(Player* player, int amount) {
 	player->xp += amount;
+	if (player->level >= PLAYER_MAX_LEVEL) {
+		player->score += amount;
+		return;
+	}
 
 	while (player->level < PLAYER_MAX_LEVEL &&
 	       player->xp >= xpToReachLevel(player->level + 1)) {

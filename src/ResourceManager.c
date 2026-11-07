@@ -41,6 +41,7 @@ void loadResources(ResourceManager* rm) {
 	rm->healthPickupTexture =
 	    LoadTexture("resources/images/pickups/health_pickup.png");
 	rm->xpGemTexture = LoadTexture("resources/images/pickups/xp_gem.png");
+	rm->orbUpgradeTexture = LoadTexture("resources/images/upgrades/orb.png");
 
 	rm->uiFont = LoadFont("resources/fonts/pixel_font.fnt");
 	rm->hpFrameTexture = LoadTexture("resources/images/ui/hp_frame.png");
@@ -120,6 +121,7 @@ void unloadResources(ResourceManager* rm) {
 	UnloadTexture(rm->rockTexture);
 	UnloadTexture(rm->healthPickupTexture);
 	UnloadTexture(rm->xpGemTexture);
+	UnloadTexture(rm->orbUpgradeTexture);
 
 	UnloadFont(rm->uiFont);
 	UnloadTexture(rm->hpFrameTexture);

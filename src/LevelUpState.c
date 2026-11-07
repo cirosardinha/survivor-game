@@ -16,7 +16,7 @@ static void drawCardText(
 
 void enterLevelUp(Game* game) {
 	PlaySound(game->resourceManager->levelUpSound);
-	rollUpgrades(game->upgradeChoices, UPGRADE_CHOICES);
+	rollUpgrades(&game->player, game->upgradeChoices, UPGRADE_CHOICES);
 	changeGameState(game, STATE_LEVELUP);
 }
 
@@ -42,7 +42,7 @@ void updateLevelUp(Game* game) {
 	game->player.pendingLevelUps--;
 
 	if (game->player.pendingLevelUps > 0) {
-		rollUpgrades(game->upgradeChoices, UPGRADE_CHOICES);
+		rollUpgrades(&game->player, game->upgradeChoices, UPGRADE_CHOICES);
 	} else {
 		changeGameState(game, STATE_GAMEPLAY);
 	}

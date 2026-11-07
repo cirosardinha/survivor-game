@@ -55,6 +55,7 @@ void updateGameplay(Game* game) {
 	resolvePlayerObstacleCollision(&game->player, previousPlayerPos);
 
 	updatePlayerAttack(&game->player, game->enemies, MAX_ENEMIES, game->delta);
+	updateOrb(&game->player, game->enemies, MAX_ENEMIES, game->delta);
 
 	game->spawnTimer -= game->delta;
 	if (game->spawnTimer <= 0.0f) {
@@ -103,6 +104,8 @@ void drawGameplay(Game* game) {
 	for (int i = 0; i < MAX_ENEMIES; i++) {
 		if (game->enemies[i].active) drawEnemy(&game->enemies[i]);
 	}
+
+	drawOrb(&game->player);
 
 	for (int i = 0; i < MAX_GEMS; i++) {
 		drawPickup(&game->gems[i]);
